@@ -165,7 +165,17 @@ public class RnaExpectations {
 		return new BigDecimal(top1.mult(top2).div(bottom).doubleValue());
 	}
 
-	public static BigDecimal getExR(Grammar g, int r) throws Exception {
+	public static BigDecimal[] getExR_default(Grammar g) {
+		int max = 5;
+		BigDecimal[] arr = new BigDecimal[max];
+		arr[0] = null;
+		arr[1] = null;
+		for (int i=2;i<max;i++)
+			arr[i] = getExR(g, i);
+		return arr;
+	}
+	
+	public static BigDecimal getExR(Grammar g, int r) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
