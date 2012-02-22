@@ -25,8 +25,6 @@ public class RnaExpectations {
 		map.put("q2", params[1]);
 		map.put("p3", one.sub(params[2]));
 		map.put("q3", params[2]);
-		map.put("-1", new MyBigDecimal(-1));
-		map.put("0", new MyBigDecimal(0));
 		return map;
 	}
 
@@ -38,15 +36,15 @@ public class RnaExpectations {
 	public static BigDecimal getRhoNot(Grammar g) {
 		double[] coef = new double[5];
 		Map<String, iDouble> p = getParams(g);
-		coef[4] = p.get("p1").pow(2).mult(p.get("p3")).mult(p.get("q2"))
-				.mult(p.get("q2")).mult(-1).doubleValue();
-
+		coef[4] = p.get("p1").pow(2).mult(p.get("p3")).mult(p.get("q2")).pow(2)
+				.mult(-1).doubleValue();
 		iDouble temp1 = p.get("p2").mult(p.get("q1")).mult(p.get("q2"))
 				.mult(p.get("q3")).mult(4);
-		coef[3] = p.get("p1").mult(p.get("p2")).mult(p.get("p3")).mult(2)
+		coef[3] = p.get("p1").mult(p.get("q2")).mult(p.get("p3")).mult(2)
 				.sub(temp1).doubleValue();
-		coef[2] = p.get("p1").mult(p.get("q2")).sub(p.get("p3")).doubleValue();
-		coef[1] = p.get("p1").mult(p.get("q2")).mult(2).doubleValue();
+		coef[2] = p.get("p1").mult(p.get("q2")).pow(2).sub(p.get("p3"))
+				.doubleValue();
+		coef[1] = p.get("p1").mult(p.get("q2")).mult(-2).doubleValue();
 		coef[0] = 1.0;
 		Polynomial poly = new Polynomial(coef);
 		double min = Double.MAX_VALUE;
@@ -55,16 +53,13 @@ public class RnaExpectations {
 				min = min < c.getReal() ? min : c.getReal();
 		return new BigDecimal(min);
 	}
-	
-	
+
 	/*
-	 * ====================================
-	 * BASE PAIRS
+	 * ==================================== BASE PAIRS
 	 * ====================================
 	 */
-	
-	
-	public static BigDecimal getEBP(Grammar g) {
+
+	public static BigDecimal getExBP(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top = new MyBigDecimal(1);
@@ -72,19 +67,17 @@ public class RnaExpectations {
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
+		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+				.mult(rnot.pow(3)));
 		return new BigDecimal(top.div(bottom).doubleValue());
 	}
 
-	
 	/*
-	 * ====================================
-	 * HELICES
+	 * ==================================== HELICES
 	 * ====================================
 	 */
-	
-	
-	public static BigDecimal getEH(Grammar g) {
+
+	public static BigDecimal getExH(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
@@ -94,18 +87,17 @@ public class RnaExpectations {
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
+		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+				.mult(rnot.pow(3)));
 		return new BigDecimal(top1.mult(top2).div(bottom).doubleValue());
 	}
 
-	
 	/*
-	 * ====================================
-	 * LOOPS
+	 * ==================================== LOOPS
 	 * ====================================
 	 */
-	
-	public static BigDecimal getHP(Grammar g) {
+
+	public static BigDecimal getExHP(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
@@ -117,29 +109,29 @@ public class RnaExpectations {
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
-		bottom = bottom.mult(4);
-		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom).doubleValue());
+		bottom = bottom.sub(
+				p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+						.mult(rnot.pow(3))).mult(4);
+		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom)
+				.doubleValue());
 	}
-	
-	public static BigDecimal getBL(Grammar g) {
+
+	public static BigDecimal getExLB(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
 		top1 = top1.sub(p.get("p1").mult(p.get("q2")).mult(rnot)).pow(2);
 		iDouble top2 = new MyBigDecimal(1);
 		top2 = top2.sub(p.get("p3").mult(rnot).mult(rnot));
-		iDouble top3 = new MyBigDecimal(1);
-		top3 = top3.add(p.get("p1").mult(p.get("q2")).mult(rnot));
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
-		bottom = bottom.mult(4);
-		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom).doubleValue());
+		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+				.mult(rnot.pow(3)).mult(4));
+		return new BigDecimal(top1.mult(top2).div(bottom).doubleValue());
 	}
-	
-	public static BigDecimal getIL(Grammar g) {
+
+	public static BigDecimal getExI(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
@@ -150,12 +142,14 @@ public class RnaExpectations {
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
-		bottom = bottom.mult(4);
-		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom).doubleValue());
+		bottom = bottom.sub(
+				p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+						.mult(rnot.pow(3))).mult(4);
+		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom)
+				.doubleValue());
 	}
-	
-	public static BigDecimal getML(Grammar g) {
+
+	public static BigDecimal getExM(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
@@ -165,54 +159,67 @@ public class RnaExpectations {
 		iDouble bottom = new MyBigDecimal(3);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		bottom = bottom.sub(p.get("p3").mult(rnot).mult(rnot));
-		bottom = bottom.sub(p.get("p1").mult(p.get("p3")).mult(p.get("q2")).mult(rnot.pow(3)));
-		bottom = bottom.mult(4);
+		bottom = bottom.sub(
+				p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+						.mult(rnot.pow(3))).mult(4);
 		return new BigDecimal(top1.mult(top2).div(bottom).doubleValue());
 	}
-	
-	public static BigDecimal getR(Grammar g) throws Exception {
-		throw new Exception("Method Not Implemented");
+
+	public static BigDecimal getExR(Grammar g, int r) throws Exception {
+		Map<String, iDouble> p = getParams(g);
+		iDouble rnot = new MyBigDecimal(getRhoNot(g));
+		iDouble top1 = new MyBigDecimal(1);
+		top1 = top1.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
+		iDouble top2 = new MyBigDecimal(1);
+		top2 = top2.sub(p.get("p3").mult(rnot).mult(rnot));
+		iDouble top3 = p.get("p1").mult(p.get("q2")).mult(rnot).pow(r - 2);
+		iDouble bottom1 = new MyBigDecimal(3);
+		bottom1 = bottom1.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
+		bottom1 = bottom1.sub(p.get("p3").mult(rnot).mult(rnot));
+		bottom1 = bottom1.sub(
+				p.get("p1").mult(p.get("p3")).mult(p.get("q2"))
+						.mult(rnot.pow(3))).mult(4);
+		iDouble bottom2 = new MyBigDecimal(1);
+		bottom2 = bottom2.add(p.get("p1").mult(p.get("q2")).mult(rnot)).pow(
+				r - 2);
+		return new BigDecimal(top1.mult(top2).mult(top3).div(bottom1)
+				.div(bottom2).doubleValue());
 	}
 
-	
 	/*
-	 * ====================================
-	 * External Loop
+	 * ==================================== External Loop
 	 * ====================================
 	 */
-	
-	
-	public static BigDecimal getECH(Grammar g) {
+
+	public static BigDecimal getExEH(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top = new MyBigDecimal(1);
-		top = top.add(p.get("p1").mult(p.get("q2")).mult(rnot));
+		top = top.add(p.get("p1").mult(p.get("q2")).mult(rnot).mult(2));
 		return new BigDecimal(top.doubleValue());
 	}
 
-	public static BigDecimal getECD(Grammar g) {
+	public static BigDecimal getExECD(Grammar g) {
 		Map<String, iDouble> p = getParams(g);
 		iDouble rnot = new MyBigDecimal(getRhoNot(g));
 		iDouble top1 = new MyBigDecimal(1);
 		top1 = top1.add(p.get("p1").mult(p.get("q2")).mult(rnot).mult(5));
-		top1 = top1.sub(p.get("p1").mult(p.get("q2")).mult(rnot).pow(2).mult(2));
+		top1 = top1
+				.sub(p.get("p1").mult(p.get("q2")).mult(rnot).pow(2).mult(2));
 		iDouble bottom = new MyBigDecimal(1);
 		bottom = bottom.sub(p.get("p1").mult(p.get("q2")).mult(rnot));
 		return new BigDecimal(top1.div(bottom).doubleValue());
 	}
 
-	
 	/*
-	 * ====================================
-	 * Testing
+	 * ==================================== Testing
 	 * ====================================
 	 */
-	
-	
+
 	public static void main(String[] args) {
 		System.out.println(getRhoNot(getGrammar()));
 	}
-	
+
 	private static Map<String, iDouble> getParams() {
 		Map<String, iDouble> params = new HashMap<String, iDouble>();
 		params.put("S->L", new MyBigDecimal(0.131466));
@@ -222,25 +229,25 @@ public class RnaExpectations {
 		params.put("s->c", new MyBigDecimal(0.151009));
 		params.put("s->g", new MyBigDecimal(0.211881));
 		params.put("s->u", new MyBigDecimal(0.211881));
-//		params.put("ff->aa", new MyBigDecimal(0.001167));
-//		params.put("ff->ac", new MyBigDecimal(0.001806));
-//		params.put("ff->ag", new MyBigDecimal(0.001058));
-//		params.put("ff->au", new MyBigDecimal(0.177977));
-//		params.put("ff->ca", new MyBigDecimal(0.001806));
-//		params.put("ff->cc", new MyBigDecimal(0.000391));
-//		params.put("ff->cg", new MyBigDecimal(0.266974));
-//		params.put("ff->cu", new MyBigDecimal(0.000763));
-//		params.put("ff->ga", new MyBigDecimal(0.001058));
-//		params.put("ff->gc", new MyBigDecimal(0.266974));
-//		params.put("ff->gg", new MyBigDecimal(0.000406));
-//		params.put("ff->gu", new MyBigDecimal(0.049043));
-//		params.put("ff->ua", new MyBigDecimal(0.177977));
-//		params.put("ff->uc", new MyBigDecimal(0.000763));
-//		params.put("ff->ug", new MyBigDecimal(0.049043));
-//		params.put("ff->uu", new MyBigDecimal(0.002793));
+		params.put("ff->aa", new MyBigDecimal(0.001167));
+		params.put("ff->ac", new MyBigDecimal(0.001806));
+		params.put("ff->ag", new MyBigDecimal(0.001058));
+		params.put("ff->au", new MyBigDecimal(0.177977));
+		params.put("ff->ca", new MyBigDecimal(0.001806));
+		params.put("ff->cc", new MyBigDecimal(0.000391));
+		params.put("ff->cg", new MyBigDecimal(0.266974));
+		params.put("ff->cu", new MyBigDecimal(0.000763));
+		params.put("ff->ga", new MyBigDecimal(0.001058));
+		params.put("ff->gc", new MyBigDecimal(0.266974));
+		params.put("ff->gg", new MyBigDecimal(0.000406));
+		params.put("ff->gu", new MyBigDecimal(0.049043));
+		params.put("ff->ua", new MyBigDecimal(0.177977));
+		params.put("ff->uc", new MyBigDecimal(0.000763));
+		params.put("ff->ug", new MyBigDecimal(0.049043));
+		params.put("ff->uu", new MyBigDecimal(0.002793));
 		return params;
 	}
-	
+
 	public static Grammar getGrammar() {
 		Grammar g = new PfoldGrammar();
 		g.setProbabilities(getParams());
