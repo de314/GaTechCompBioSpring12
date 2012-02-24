@@ -71,20 +71,30 @@ public class JSCFGPredictor {
 			Map<String, RNAobj> rnas = new HashMap<String, RNAobj>();
 			File[] files = dir.listFiles();
 			for (File f : files) {
-				if (f.isFile() && f.getName().endsWith("ct")) {
+				System.out.println("Processing: " + f.getAbsolutePath());
+				File out = new File(dirName+"/pred/"+f.getName()+".ct");
+				if (f.isFile() && f.getName().endsWith("ct") && !out.exists()) {
 					RNAFormattedFile rnaf = RnaFileHandler.convertCtFile(f);
-					rnas.put(f.getName(), g.predict(new RNAobj(rnaf.get("seq"), rnaf.get("nat"))));
-				} else if (!f.isDirectory()) {
-					rnas.put(f.getName(), g.predict(new RNAobj(RnaFileHandler.parseFastaFile(f), null)));
+					RNAobj obj = g.predict(new RNAobj(rnaf.get("seq"), rnaf.get("nat")));
+					RnaFileHandler.writeCTFile(out.getAbsolutePath(), obj.getSeq(), obj.getPred());
+					System.out.println("\n\n\nDone: " + f.getAbsolutePath());
+//					rnas.put(f.getName(), g.predict(new RNAobj(rnaf.get("seq"), rnaf.get("nat"))));
+				} else if (!f.isDirectory() && !out.exists()) {
+//					rnas.put(f.getName(), g.predict(new RNAobj(RnaFileHandler.parseFastaFile(f), null)));
+					RNAobj obj = g.predict(new RNAobj(RnaFileHandler.parseFastaFile(f), null));
+					RnaFileHandler.writeCTFile(out.getAbsolutePath(), obj.getSeq(), obj.getPred());
+					System.out.println("\n\n\nDone: " + out.getAbsolutePath());
+				} else {
+					System.out.println("Skipping: " + f.getAbsolutePath());
 				}
 			}
 			List<File> rtn = new LinkedList<File>();
-			new File(dirName+"/pred/").mkdirs();
-			for (Entry<String, RNAobj> me : rnas.entrySet()) {
-				File f = new File(dirName+"/pred/"+me.getKey());
-				RnaFileHandler.writeCTFile(f.getName(), me.getValue().getSeq(), me.getValue().getPred());
-				rtn.add(f);
-			}
+//			new File(dirName+"/pred/").mkdirs();
+//			for (Entry<String, RNAobj> me : rnas.entrySet()) {
+//				File f = new File(dirName+"/pred/"+me.getKey()+".ct");
+//				RnaFileHandler.writeCTFile(f.getName(), me.getValue().getSeq(), me.getValue().getPred());
+//				rtn.add(f);
+//			}
 			return rtn;
 		}
 		return null;
