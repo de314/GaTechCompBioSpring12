@@ -18,6 +18,13 @@ function parse_ct_file($path, $filename) {
 	if ($handle) {
 		$buffer = fgets($handle);
 		$vals = preg_split("/\s+/", $buffer);
+		if ($vals[0] == "Filename:") {
+			fgets($handle);
+			fgets($handle);
+			fgets($handle);
+			$buffer = fgets($handle);
+			$vals = preg_split("/\s+/", $buffer);
+		}
 		$total = intval($vals[0]);
 		$seq = "";
 		$str = "";

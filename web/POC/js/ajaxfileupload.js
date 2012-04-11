@@ -113,7 +113,13 @@ jQuery.extend({
                 } catch(e) 
 				{
                     status = "error";
-                    jQuery.handleError(s, xml, status, e);
+                    
+                    
+                    //    ALTERED   //
+                    //jQuery.handleError(s, xml, status, e);
+                    //    ALTERED   //
+                    
+                    
                 }
 
                 // The request was completed

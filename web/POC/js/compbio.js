@@ -1,104 +1,165 @@
-function TrainingSet(ele, name, seqs, color) {
-	this.ele = ele;
-	this.name = name;
-	this.sequences = seqs ? seqs : {};
-	this.color = color ? color : '#FFF';
-	this.add = function(seq) {
-		console.debug(seq);
-		if (seq && $(seq.ele).attr('id') && seq.seq && seq.str)
-			this.sequences[$(seq.ele).attr('id')] = seq;
-	}
-	this.remove = function(id) {
-		if (this.sequences[id]) {
-			delete sequences[id];
-			resetLists();
-		}
-	}
-	this.clear = function() {
-		this.sequences = {};
-	}
-}
+// Array Indices
+var A = 0;
+var C = 1;
+var G = 2;
+var U = 3;
+var S     = 0;
+var S_LS  = 1;
+var S_L   = 2;
+var L     = 3;
+var L_t   = 4;
+var L_dFd = 5;
+var F     = 6;
+var F_dFd = 7;
+var F_LS  = 8;
+// Training Count Variables
+var NUN = 0;
+var NBP = 0;
 
-function Sequence(ele, name, seq, str) {
-	this.ele = ele;
-	this.name = name;
-	this.seq = seq;
-	this.str = str;
-	this.output = function() {
-		return this.name + ": " + this.seq + " - " + this.str;
+function train_grammar(ts) {
+	var g = new PfoldGrammar(ts.name, ts.sequences);
+	NUN = 0;
+	NBP = 0;
+	for (var ind in ts.sequences) {
+		var seq = ts.sequences[ind];
+		var pairs = getPairsArraySt(seq.str);
+		train_on_sequences_kh(seq.str, pairs, 0, seq.str.length-1, false, g.counts.kh);
+		train_on_sequences_pf(seq.seq, seq.str, pairs, g);
 	}
-}
-
-function upload_file() {
-	var ele = $('#uploaded_file');
-	var filename = ele.val();
-	var url = "scripts/public_api.php";
-	var func = 0;
-	if (endsWith(filename, ".ct")) {
-		url += "?upload";
-		func = receiveFile;
-	} else if (endsWith(filename, ".zip")) {
-		url += "?zip";
-		func = receiveZip;
-	}
-	if (func)
-		asynch_submit(url, func);
-	else {
-		// TODO: Invalid file format
-	}
-	return false;
-}
-function endsWith(str, suffix) {
-	return str.indexOf(suffix, str.length - suffix.length) !== -1;
-}
-function receiveFile(data, status) {
-	var rna = handleSeq(data);
-	if (rna) {
-		console.debug(rna);
-		if (selectedList && $(selectedList).length) {
-			console.debug(selectedList);
-			var arr = new Array();
-			arr[0] = rna;
-			appendTrainingSet2(selectedList.attr("id"), arr);
-		} else {
-			var seqs = new Array();
-			seqs[0] = rna;
-			addTrainingSet2("New Training Set", seqs);
-		}
-	}
-}
-function handleSeq(obj) {
-	return new Sequence(0, obj.filename, obj.seq, obj.str);
-}
-function receiveZip(data, status) {
+	// Set Knudson-Hein Counts
+	g.counts.NUN = NUN;
+	g.counts.NBP = NBP;
+	g.counts.kh[L_t] += NUN;
+	g.counts.kh[F] += NBP;
+	g.counts.kh[S] = g.counts.kh[S_L] + g.counts.kh[S_LS];
+	g.counts.kh[L] = g.counts.kh[L_t] + g.counts.kh[F] - g.counts.kh[F_dFd];
+	g.counts.kh[F_LS] = g.counts.kh[F] - g.counts.kh[F_dFd];
+	// Set Knudson-Hein Probabilities
+	g.prob.kh[S] = 1;
+	g.prob.kh[S_L] = g.counts.kh[S_L] / g.counts.kh[S];
+	g.prob.kh[S_LS] = g.counts.kh[S_LS] / g.counts.kh[S];
+	g.prob.kh[L] = 1;
+	g.prob.kh[L_t] = g.counts.kh[L_t] / g.counts.kh[L];
+	g.prob.kh[L_dFd] = g.counts.kh[L_dFd] / g.counts.kh[L];
+	g.prob.kh[F] = 1;
+	g.prob.kh[F_dFd] = g.counts.kh[F_dFd] / g.counts.kh[F];
+	g.prob.kh[F_LS] = g.counts.kh[F_LS] / g.counts.kh[F];
+	// Set Pfold Probabilities
 	var i;
-	var rnas = new Array();
-	for (i = 0; i < data.length; i++)
-		rnas.push(handleSeq(data[i]));
-	if (rnas.length > 0) {
-		var name = prompt("Training set uploaded successfully. Please enter training set name:", "New Training Set");
-		if (name != null && name != "")
-			addTrainingSet2(name, rnas);
+	var total = 0;
+	// Nucleotide Distribution
+	for (i=0;i<4;i++)
+		total += g.counts.nuc[i];
+	for (i=0;i<4;i++)
+		g.prob.nuc[i] = g.counts.nuc[i] / total;
+	total = 0;
+	// Unpaired Nucleotide Probabilities
+	for (i=0;i<4;i++)
+		total += g.counts.upn[i];
+	for (i=0;i<4;i++)
+		g.prob.upn[i] = g.counts.upn[i] / total;
+	var j;
+	total = 0;
+	// Base Pair Nucleotide Probabilites
+	for (i=0;i<4;i++)
+		for (j=0;j<4;j++)
+			total += g.counts.bp[i][j];
+	for (i=0;i<4;i++)
+		for (j=0;j<4;j++)
+			g.prob.bp[i][j] = g.counts.bp[i][j] / total;
+	
+	return g;
+}
+
+function train_on_sequences_kh(nat, pairs, i, j, fromS, counts) {
+	if (i > j || i >= nat.length)
+		return;
+	for (; i <= j; i++) {
+		var c = nat.charAt(i);
+		if (c == '.') {
+			if (i == j)
+				counts[S_L]++;
+			else if (fromS)
+				counts[S_LS]++;
+		} else if (c == '(') {
+			if (fromS) {
+				if (pairs[i] == j)
+					counts[S_L]++;
+				else
+					counts[S_LS]++;
+			}
+			if (i > 0 && pairs[i - 1] == pairs[i] + 1)
+				counts[F_dFd]++;
+			else
+				counts[L_dFd]++;
+			train_on_sequences_kh(nat, pairs, i + 1, pairs[i] - 1, false, counts);
+			i = pairs[i];
+		}
+		fromS = true;
 	}
 }
 
-function asynch_submit(target_url, return_func) {
-	/*
-	 * prepareing ajax file upload url: the url of script file handling the
-	 * uploaded files fileElementId: the file type of input element id and it
-	 * will be the index of $_FILES Array() dataType: it support json, xml
-	 * secureuri:use secure protocol success: call back function when the ajax
-	 * complete error: callback function when the ajax failed
-	 */
-	$.ajaxFileUpload({
-		url : target_url,
-		secureuri : false,
-		fileElementId : 'uploaded_file',
-		dataType : 'json',
-		success : return_func,
-		error : function(data, status, e) {
-			console.debug(data);
-			alert(e);
+function train_on_sequences_pf(seq, nat, pairs, g) {
+	var seq2 = getNucleotideIndexArray(seq);
+	var c;
+	for (var i = 0; i < seq.length; i++) {
+		c = nat.charAt(i);
+		g.counts.nuc[seq2[i]]++;
+		g.counts.nuc[4]++;
+		switch (c) {
+		case '.':
+			g.counts.upn[seq2[i]]++;
+			g.counts.upn[4]++;
+			break;
+		case '(':
+			g.counts.bp[seq2[i]][seq2[pairs[i]]]++;
+		default:
+			break;
 		}
-	})
+	}
+}
+
+function getPairsArraySt(nat) {
+	var stk = new Array();
+	var pairs = new Array();
+	var size = nat.length;
+	for (var i = 0; i < size; i++) {
+		pairs[i] = -1;
+		var c = nat.charAt(i);
+		if (c == '(') {
+			stk.push(i);
+			NBP++;
+		} else if (c == ')') {
+			pairs[i] = stk.pop();
+			pairs[pairs[i]] = i;
+		} else
+			NUN++;
+	}
+	return pairs;
+}
+
+function getNucleotideIndexArray(seq) {
+	seq = seq.toUpperCase();
+	var seq2 = new Array();
+	var c;
+	for (var i = 0; i < seq.length; i++) {
+		c = seq.charAt(i);
+		switch (c) {
+		case 'A':
+			seq2[i] = A;
+			break;
+		case 'C':
+			seq2[i] = C;
+			break;
+		case 'G':
+			seq2[i] = G;
+			break;
+		case 'U':
+			seq2[i] = U;
+			break;
+		default:
+			seq2[i] = -1;
+		}
+	}
+	return seq2;
 }

@@ -27,7 +27,7 @@ html {height:100%;}
 
 #drag_drop { text-align:center; height:100%; position:relative; background-color:#fff;}
 #drag_drop .container { padding:20px;}
-#drag_drop .list {width:150px; padding:0 20px;}
+#drag_drop .list {width:150px; padding:0 20px; float:left;}
 #drag_drop .list .title {font-size:15px; font-weight:bold;}
 #drag_drop .list ul {}
 #drag_drop .list ul li {list-style:none; background-color:gray; margin:2px; height:20px; padding-top:3px; cursor:pointer; width:140px;}
@@ -42,3 +42,19 @@ html {height:100%;}
 .infos .list_of_plugins ul li a {display:block; padding:2px; margin-bottom:2px; padding-left:10px; background-color:#F2F2F2;color:#5A5A5A; text-decoration:none;}
 .infos .list_of_plugins ul li a:hover {background-color:#E3401D;color:#FCBEB1;}
 .infos .list_of_plugins ul li a.selected {background-color:#E3401D;color:#FCBEB1;}
+
+/* -------- D3 MATRIX -------- */
+svg { font: 10px sans-serif; }
+.axis { shape-rendering: crispEdges; }
+.axis line { stroke: #ddd; stroke-width: .5px; }
+.axis path { display: none; }
+rect.extent { fill: #000; fill-opacity: .125; stroke: #fff; }
+rect.frame { fill: #fff; fill-opacity: .7; stroke: #aaa; }
+circle { fill: #ccc; fill-opacity: .5; }
+.cell text { pointer-events: none; }
+.setosa { fill: #800; }
+.versicolor { fill: #080; }
+.virginica { fill: #008; }
+
+/* -------- D3 BAR -------- */
+.chart rect { stroke: white; }
