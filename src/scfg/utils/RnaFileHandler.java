@@ -80,6 +80,33 @@ public class RnaFileHandler {
 		return null;
 	}
 	
+	public static RNAFormattedFile convertCtFile(Scanner scan,
+			RNAFormattedFile rnaFile) {
+		try {
+//			output.out("\tConverting...");
+			String line = scan.nextLine();
+			if (line.contains("html"))
+				return null;
+			String[] arr = line.split("\\s+");
+			if (!arr[1].equals("1")) {
+				scan.nextLine();
+				scan.nextLine();
+				scan.nextLine();
+				scan.nextLine();
+			}
+			StringBuilder structure = new StringBuilder();
+			StringBuilder sequence = new StringBuilder();
+			recurseOnBP(scan, sequence, structure);
+			rnaFile.put("seq", sequence.toString());
+			rnaFile.put("nat", structure.toString());
+			return rnaFile;
+		} catch (Exception e) {
+//			output.eout(f.getAbsolutePath());
+//			output.eoutST(e);
+		}
+		return null;
+	}
+	
 	public static void recurseOnBP(Scanner scan,
 			StringBuilder sequence, StringBuilder structure) {
 		while (scan.hasNext()) {

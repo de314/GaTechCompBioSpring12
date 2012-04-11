@@ -35,7 +35,7 @@ public class JSCFGPredictor {
 		params.put("s->a", new MyBigDecimal(0.364097));
 		params.put("s->c", new MyBigDecimal(0.151009));
 		params.put("s->g", new MyBigDecimal(0.211881));
-		params.put("s->u", new MyBigDecimal(0.211881));
+		params.put("s->u", new MyBigDecimal(0.273013));
 		params.put("ff->aa", new MyBigDecimal(0.001167));
 		params.put("ff->ac", new MyBigDecimal(0.001806));
 		params.put("ff->ag", new MyBigDecimal(0.001058));
@@ -79,7 +79,7 @@ public class JSCFGPredictor {
 					RnaFileHandler.writeCTFile(out.getAbsolutePath(), obj.getSeq(), obj.getPred());
 					System.out.println("\n\n\nDone: " + f.getAbsolutePath());
 //					rnas.put(f.getName(), g.predict(new RNAobj(rnaf.get("seq"), rnaf.get("nat"))));
-				} else if (!f.isDirectory() && !out.exists()) {
+				} else if (!f.isDirectory() && !out.exists() && !f.isHidden()) {
 //					rnas.put(f.getName(), g.predict(new RNAobj(RnaFileHandler.parseFastaFile(f), null)));
 					RNAobj obj = g.predict(new RNAobj(RnaFileHandler.parseFastaFile(f), null));
 					RnaFileHandler.writeCTFile(out.getAbsolutePath(), obj.getSeq(), obj.getPred());
