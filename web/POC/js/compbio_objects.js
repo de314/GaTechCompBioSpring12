@@ -125,7 +125,7 @@ function PfoldGrammar(name, seqs) {
 	for (var i=0;i<4;i++)
 		this.prob.bp[i] = new Array(0.0,0.0,0.0,0.0);
 	this.output = function() {
-		var out = this.name + ":\n\n";
+		var out = "<b>" + this.name + " (probabilities):</b>\n\n";
 		out += "Knudson-Hein:\n";
 		out += "S->LS\t" + this.prob.kh[S_LS].toFixed(num_dec) + "\tS->L\t" + this.prob.kh[S_L].toFixed(num_dec);
 		out += "\nL->t\t" + this.prob.kh[L_t].toFixed(num_dec) + "\tL->dFd\t" + this.prob.kh[L_dFd].toFixed(num_dec);
@@ -150,7 +150,7 @@ function PfoldGrammar(name, seqs) {
 		return out;
 	};
 	this.output_counts = function() {
-		var out = this.name + " (Counts):\n\n";
+		var out = "<b>" + this.name + " (Counts):</b>\n\n";
 		out += "Knudson-Hein Counts:\n";
 		out += "S->LS\t" + this.counts.kh[S_LS] + "\tS->L\t" + this.counts.kh[S_L];
 		out += "\nL->t\t" + this.counts.kh[L_t] + "\tL->dFd\t" + this.counts.kh[L_dFd];

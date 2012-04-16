@@ -31,6 +31,29 @@ function addTrainingSet2(title, seqs) {
 	resetLists();
 }
 
+function addTrainingSet3(title, seqs, color) {
+	$('.container')
+			.append(
+					"<div class='list' style='background:"+color+"' id='ul"
+							+ ul_id_count
+							+ "'><div id='title' class='title' onclick='selTitle(this)'><span id='name'>"
+							+ title
+							+ "</span>&nbsp;"+getDeleteIconString()+"</div><ul></ul></div></div>");
+	var ts = new TrainingSet($("#ul" + ul_id_count), title);
+	trainingSets["ul" + ul_id_count] = ts;
+	ul_id_count++;
+	for ( var i in seqs) {
+		$('ul:last').append(
+				"<li id='li" + li_id_count + "'>" + seqs[i].name + "</li>");
+		ts.add(seqs[i]);
+		seqs[i].ele = $("#li" + li_id_count);
+		seqs[i].ele.attr("seq", seqs[i].seq);
+		seqs[i].ele.attr("str", seqs[i].str);
+		li_id_count++;
+	}
+	resetLists();
+}
+
 function getDeleteIconString() {
 	return "<span style='color:red;float:right;background:#FFF;padding:0px 5px;border:1px solid #000' onclick='deleteTSet(this)'>X</span>";
 }
@@ -59,8 +82,14 @@ function deleteTSet(ele) {
 function selTitle(ele) {
 	if (selectedList)
 		selectedList.css("border", "");
+	else {
+		$('#titleSet').toggle();
+		$('#colorSet').toggle();
+	}
 	if (ele.length == 0 || selectedList[0] == ele.parentNode) {
 		selectedList = 0;
+		$('#titleSet').toggle();
+		$('#colorSet').toggle();
 		return;
 	}
 	selectedList = $(ele.parentNode);
@@ -100,9 +129,10 @@ function upload_file() {
 		url += "?zip";
 		func = receiveZip;
 	}
-	if (func)
+	if (func) {
+		$('#buttonUpload').hide();
 		asynch_submit(url, func);
-	else {
+	} else {
 		alert("Cannot process file. '" + filename + "'. Files must end with *.ct or *.zip");
 	}
 	return false;
@@ -115,15 +145,10 @@ function endsWith(str, suffix) {
 function receiveFile(data, status) {
 	var rna = handleSeq(data);
 	if (rna) {
-		if (selectedList && $(selectedList).length) {
-			var arr = new Array();
-			arr[0] = rna;
-			appendTrainingSet2(selectedList.attr("id"), arr);
-		} else {
-			var seqs = new Array();
-			seqs[0] = rna;
-			addTrainingSet2("New Training Set", seqs);
-		}
+		var seqs = new Array();
+		seqs[0] = rna;
+		// TODO: training set name
+		addTrainingSet2("New Training Set", seqs);
 	}
 }
 
@@ -131,9 +156,19 @@ function handleSeq(obj) {
 	return new Sequence(0, obj.filename, obj.seq, obj.str);
 }
 
+function handleTS(obj) {
+	var rnas = new Array();
+	for (i = 0; i < obj.seqs.length; i++) {
+		rnas.push(handleSeq(obj.seqs[i]));
+	}
+	return rnas;
+}
+
+/*
 function receiveZip(data, status) {
 	var i;
 	var rnas = new Array();
+	// TODO: taining set name(s)
 	for (i = 0; i < data.length; i++)
 		rnas.push(handleSeq(data[i]));
 	if (rnas.length > 0) {
@@ -141,6 +176,15 @@ function receiveZip(data, status) {
 		if (name != null && name != "")
 			addTrainingSet2(name, rnas);
 	}
+}
+/**/
+
+function receiveZip(data, status) {
+	var i;
+	var ts_collection = new Array();
+	console.debug(data);
+	for (i = 0; i < data.length; i++)
+		addTrainingSet3(data[i].name, handleTS(data[i]), data[i].color);
 }
 
 function asynch_submit(target_url, return_func) {
@@ -176,6 +220,7 @@ function train_grammars() {
 		out += "<pre>" + g.output_counts() + "</pre></td><td>";
 		out += "<pre>" + exp.output() + "</pre></td></tr></table>";
 		$("#resultsText").append(out);
+		$("#resultsText").append('<p><b>NOTE:</b> "NaN" means "Not a Number". This usually means that there are no sequences in the training set.<\p>');
 		trainingSets[ts].grammar = g;
 	}
 	generate_graphs();

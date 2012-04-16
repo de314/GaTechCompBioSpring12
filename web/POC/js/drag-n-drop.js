@@ -62,7 +62,6 @@ function updateTrainingSets() {
 								this).attr("seq"), $(this).attr("str")));
 				});
 	}
-	console.debug(trainingSets);
 	$("#resultsText").html("Train the grammars to see results here");
 	$("#resultsGraphs").html("Train the grammars to see results here");
 }

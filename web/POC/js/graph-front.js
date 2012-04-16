@@ -5,14 +5,22 @@ var bp_c_labels = [ "CA", "CC", "CG", "CU"];
 var bp_g_labels = [ "GA", "GC", "GG", "GU"];
 var bp_u_labels = [ "UA", "UC", "UG", "UU"];
 var group_by_value = 1;
+var graph_width = 20;
+var graph_height = 80;
+var switch_button_text = "Group by training set";
 
 function switch_grouping() {
-	console.debug($("#switch_bttn span"));
 	if (group_by_value)
-		$("#switch_bttn").text("Group by training set");
+		switch_button_text = "Group by value";
 	else
-		$("#switch_bttn").text("Group by value");
+		switch_button_text = "Group by training set";
 	group_by_value = !group_by_value;
+	generate_graphs();
+}
+
+function change_size(w, h) {
+	graph_width = w;
+	graph_height = h;
 	generate_graphs();
 }
 
@@ -108,77 +116,111 @@ function generate_bar_plot() {
 				data_bp_u.push({"time": count++, "value": trainingSets[ts].grammar.prob.bp[U][i], "color": trainingSets[ts].color });
 	}
 	
-	$("#resultsGraphs").html("<button id='switch_bttn' onclick='switch_grouping();'><span>Group by Training Set<span></a>");
+	$("#resultsGraphs").html("");
+	$("#resultsGraphs").append("<button onclick='change_size(20,80);'><span>Resize Graphs: Small<span></button>");
+	$("#resultsGraphs").append("<button onclick='change_size(30,120);'><span>Resize Graphs: Medium<span></button>");
+	$("#resultsGraphs").append("<button onclick='change_size(40,160);'><span>Resize Graphs: Large<span></button><br />");
+	$("#resultsGraphs").append("<p><button id='switch_bttn' onclick='switch_grouping();'><span id='switch_text'>"+ switch_button_text + "<span></button></p>");
 	
 	$("#resultsGraphs").append("<h3>Knudsen-Hein Probabilities</h3>");	
-	format_chart(data_kh, kh_labels);
+	format_chart(data_kh, kh_labels, true);
 	
 	$("#resultsGraphs").append("<h3>Nucleotide Distribution Probabilities</h3>");
-	format_chart(data_nuc, nuc_labels);
+	format_chart(data_nuc, nuc_labels, false);
 	
 	$("#resultsGraphs").append("<h3>Unpaired Nucleotide Probabilities</h3>");	
-	format_chart(data_upn, nuc_labels);
+	format_chart(data_upn, nuc_labels, false);
 	
 	$("#resultsGraphs").append("<h3>Basepair A* Probabilities</h3>");
-	format_chart(data_bp_a, bp_a_labels);
+	format_chart(data_bp_a, bp_a_labels, true);
 	
 	$("#resultsGraphs").append("<h3>Basepair C* Probabilities</h3>");
-	format_chart(data_bp_c, bp_c_labels);
+	format_chart(data_bp_c, bp_c_labels, true);
 	
 	$("#resultsGraphs").append("<h3>Basepair G* Probabilities</h3>");
-	format_chart(data_bp_g, bp_g_labels);
+	format_chart(data_bp_g, bp_g_labels, true);
 	
 	$("#resultsGraphs").append("<h3>Basepair U* Probabilities</h3>");
-	format_chart(data_bp_u, bp_u_labels);
+	format_chart(data_bp_u, bp_u_labels, true);
 }
 
-function format_chart(data, labels) {
-	var w = 20, h = 80;
-	var x = d3.scale.linear().domain([0, 1]).range([0, w]); 
+function format_chart(data, labels, rotate) {
+	var w = graph_width, h = graph_height;
+	var x = d3.scale.linear().domain([0, 1]).range([w, 2*w]); 
 	var y = d3.scale.linear().domain([0, 1]).rangeRound([0, h]);
+	var yp = d3.scale.linear().domain([1, 0]).rangeRound([0, h]);
 	var i = 0;
 	
 	var chart = d3.select("#resultsGraphs").append("svg")
 	   .attr("class", "chart")
-	   .attr("width", w * data.length - 1)
-	   .attr("height", h + 50);
-	
-	chart.selectAll("rect")
-	   .data(data)
-	   .enter().append("rect")
-	   .attr("x", function(d, i) { return x(i) - .5; })
-	   .attr("y", function(d) { return h - y(d.value) - .5; })
-	   .attr("width", w)
-	   .attr("height", function(d) { return y(d.value); })
-	   .attr("fill", function(d) { return d.color; });
-	
+	   .attr("width", w * data.length - 1 + 2 * w)
+	   .attr("height", 2 * h);
+
+	// x-axis
 	chart.append("line")
-	   .attr("x1", 0)
-	   .attr("x2", w * data.length)
-	   .attr("y1", h - .5)
-	   .attr("y2", h - .5)
+	   .attr("x1", w)
+	   .attr("x2", w * data.length + w)
+	   .attr("y1", h + 10)
+	   .attr("y2", h + 10)
 	   .style("stroke", "#000");
 	
+	// y-axis
+	chart.append("line")
+	   .attr("x1", w - 2)
+	   .attr("x2", w - 2)
+	   .attr("y1", 10)
+	   .attr("y2", h +10)
+	   .style("stroke", "#000");
+	
+	// add y-axis
+	var rules = chart.append("g");
+	 rules = rules.selectAll(".rule")
+	 	.data(y.ticks(4))
+	 	.enter().append("g")
+	 	.attr("class", "rule")
+	 	.attr("transform", function(d) { return "translate(0," + (yp(d) + 10) + ")"; });
+	 
+	 rules.append("line")
+	   .attr("x1", w - 5)
+	   .attr("x2", w * data.length + w)
+	   .style("stroke", "#000");
+	 
+	 rules.append("text")
+		 .attr("x", 0)
+		 .attr("dy", ".35em")
+		 .text(function(d) { return d; });
+	
+	 // plot data
+	 chart.selectAll("rect")
+		   .data(data)
+		   .enter().append("rect")
+		   .attr("x", function(d, i) { return x(i) - .5; })
+		   .attr("y", function(d) { return h - y(d.value) + 8; })
+		   .attr("width", w)
+		   .attr("height", function(d) { return y(d.value); })
+		   .attr("fill", function(d) { return d.color; });
+	
 	// add labels
+	var offset = w + 5;
 	if (group_by_value) {
 		var x_spacing = (data.length / labels.length) * w;
 		for(i = 0;i<labels.length;i++) {
-			var x1 = 5 + i*x_spacing;
+			var x1 = offset + (w/2) + i*x_spacing;
 			var y1 = h+5;
 			chart.append("text")
-				.attr("y", y1)
-				.attr("x", x1)
-				.attr("transform", "rotate(90, "+x1+","+y1+")")
+				.attr("y", y1 + 15)
+				.attr("x", x1 - (rotate ? 0 : (w/2)))
+				.attr("transform", rotate ? "rotate(45, "+x1+","+y1+")" : "")
 				.text(labels[i]);
 		}
 	} else {
 		for(i = 0;i<data.length;i++) {
-			var x1 = 5 + i*w;
+			var x1 = offset + (w/2) + i*w;
 			var y1 = h+5;
 			chart.append("text")
-				.attr("y", y1)
-				.attr("x", x1)
-				.attr("transform", "rotate(90, "+x1+","+y1+")")
+				.attr("y", y1 + 15)
+				.attr("x", x1 - (rotate ? 0 : (w/2)))
+				.attr("transform", rotate ? "rotate(45, "+x1+","+y1+")" : "")
 				.text(labels[i%labels.length]);
 		}
 	}

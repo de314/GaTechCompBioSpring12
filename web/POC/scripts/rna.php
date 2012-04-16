@@ -22,4 +22,28 @@ class RNAobj {
 	}
 }
 
+class TrainingSet {
+	public $name;
+	public $color;
+	public $seqs;
+	public function __construct($name, $color, $sequences) {
+		$this->name = $name;
+		$this->color = $color ? $color : "#FFF";
+		$this->seqs = $sequences ? $sequences : array();
+	}
+	public function add_seq($rna) {
+		if ($rna)
+			$this->seqs[] = $rna;
+	}
+	public function as_array() {
+		$seqs_arr = array();
+		foreach($seqs as $rna)
+			$seqs_arr[] = $rna->as_array();
+		return array("name"=>$this->name, "seqs"=>$seqs_arr, "color"=>$this->color);
+	}
+	public function json() {
+		echo json_encode($this->as_array());
+	}
+}
+
 ?>

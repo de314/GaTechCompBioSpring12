@@ -28,7 +28,17 @@
     <script type="text/javascript" src="js/compbio.js"></script>
     <script type="text/javascript" src="js/compbio_objects.js"></script>
     <script type="text/javascript" src="js/compbio_expectations.js"></script>
-    
+    <script type="text/javascript">
+	    var uploadHelp = 0;
+	    var editHelp = 0;
+    	$(document).ready(function() {
+    		$('#uploadHelp').toggle();
+    		$('#editHelp').toggle();
+    		$('#titleSet').toggle();
+    		$('#colorSet').toggle();
+    		$('#buttonUpload').hide();
+    	})
+    </script>
     <!-- 
     <script type="text/javascript" src="js/compbio_min.js"></script>
     -->
@@ -48,20 +58,53 @@
   <div style="float:left;width:250px;border:1px solid #000;padding:15px;">
   	<form name="form1" action="" method="POST" enctype="multipart/form-data">
 		<p>
-			Upload File ("*.ct" or "*.zip")<br />
-			<a href="other/SampleSequences.tar.gz">Download Sample Sequences</a>
+			<b>Step 1: Upload Files</b>&nbsp;&nbsp;&nbsp;
+			<a id="uploadHelpLink" onclick="$('#uploadHelp').toggle(750);$('#uploadHelpLink').html(uploadHelp?'more...':'less...');uploadHelp=!uploadHelp;console.debug(this);">more...</a>
+			
+			<br /><br />
+			
+			<span id="uploadHelp">
+				RNA files can be found <a href="">here</a>. Supported files formats include 
+				CT files. Structure with pseudo knots are considered invalid. Zip files can be used
+				to upload multiple files. Please zip multiple *.ct files to upload then as a new 
+				training set. To upload multiple training sets, place each training set in a seperate
+				directory. Zip all the directories in a single file to upload multiple training sets. 
+				File extensions MUST match: "*.ct" or "*.zip"
+			</span>
 		</p>
-		<p><input id="uploaded_file" name="uploaded_file" type="file" /></p> 
+		<p><input id="uploaded_file" name="uploaded_file" onChange="if($('#uploaded_file').val()!=''){$('#buttonUpload').show();}else{$('#buttonUpload').hide();}" type="file" /></p> 
 		<p><button class="button" id="buttonUpload" onclick="return upload_file();">Upload</button></p>
 	</form>
 	
-	<p id="titleSet" style="visible:false;">
-		Set Training Set Name: &nbsp; <input type="text" id="newTitle" />
-		<button onclick="setTitle();" >Change Name</button><button onclick="addNewTrainingSet()" >Create New Set</button>
+	<p>
+		<b>Step 2: Edit Training Sets</b>&nbsp;&nbsp;&nbsp;
+		<a id="editHelpLink" onclick="$('#editHelp').toggle(750);$('#editHelpLink').html(editHelp?'more...':'less...');editHelp=!editHelp;">more...</a>
+		
+		<br /><br />
+		
+		<span id="editHelp">
+			Once training sets are uploaded they can be selected by clicking on their title.
+			A selected training set will have a bold black boarder. To unselect the training set,
+			select another training set or click on the selected title again. Once a set is selected
+			a number of options will apear in the menu. The training set name and color can be changed.
+			These customizations will be used to facilitate interpretation of results.
+				<br />&nbsp;<br />
+			Sequences can be moved from training set on at a time or in groups. Just select the sequence(s) 
+			to move by clicking it or dragging a box over it and once the sequence's background is light
+			gray, it may be added to another set by dropping it on a set's title. Duplicate copies of a
+			sequence will always be treated as multiple sequences.
+				<br />&nbsp;<br />
+			Any training set can be deleted by clicking the red <b style="color:red;">X</b> in the top
+			right corner. Deleting a set cannot be undone.
+		</span>
 	</p>
-    <p>
-      Colors:
-      <div style="width:100%;border:1px solid #000">
+	
+	<p id="titleSet">
+		Set Training Set Name: &nbsp; <input type="text" id="newTitle" />
+		<button class="button" onclick="setTitle();" >Change Name</button>
+	</p>
+    <p id="colorSet">
+      	Colors:
         <table style="cell-spacing:5px;width:100%;" border="1px">
           <tr>
             <td style="background-color:#F00" onclick="setColor(this)">&nbsp;</td>
@@ -74,10 +117,13 @@
             <td style="background-color:#F0F" onclick="setColor(this)">&nbsp;</td>
           </tr>
         </table>
-      </div>
     </p>
     <p>
-      <button type="button" onclick="train_grammars();">Train Selected Training Sets</button>
+      <button class="button" onclick="train_grammars();">Train Uploaded Training Sets</button>
+    </p>
+    <hr />
+    <p>
+		<a href="other/SampleSequences.tar.gz">Download Sample Sequences</a>
     </p>
   </div>
     <div id="drag_drop" class="demo" style="float:left;width:700px;border:1px solid #000;">
