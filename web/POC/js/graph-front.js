@@ -24,6 +24,14 @@ function change_size(w, h) {
 	generate_graphs();
 }
 
+function change_size2(w, h) {
+	if (graph_width + w > 5)
+		graph_width += w;
+	if (graph_height + h > 20)
+		graph_height += h;
+	generate_graphs();
+}
+
 function generate_graphs() {	
 	generate_bar_plot();
 }
@@ -117,9 +125,16 @@ function generate_bar_plot() {
 	}
 	
 	$("#resultsGraphs").html("");
+	// Size presets
 	$("#resultsGraphs").append("<button onclick='change_size(20,80);'><span>Resize Graphs: Small<span></button>");
 	$("#resultsGraphs").append("<button onclick='change_size(30,120);'><span>Resize Graphs: Medium<span></button>");
 	$("#resultsGraphs").append("<button onclick='change_size(40,160);'><span>Resize Graphs: Large<span></button><br />");
+	// Fine size adjustment
+	$("#resultsGraphs").append("<button onclick='change_size2(-5,0);'><span>Width--<span></button>");
+	$("#resultsGraphs").append("<button onclick='change_size2(5,0);'><span>Width++<span></button>");
+	$("#resultsGraphs").append("<button onclick='change_size2(0,-5);'><span>Height--<span></button>");
+	$("#resultsGraphs").append("<button onclick='change_size2(0,5);'><span>Height++<span></button><br />");
+	// Grouping
 	$("#resultsGraphs").append("<p><button id='switch_bttn' onclick='switch_grouping();'><span id='switch_text'>"+ switch_button_text + "<span></button></p>");
 	
 	$("#resultsGraphs").append("<h3>Knudsen-Hein Probabilities</h3>");	
@@ -146,7 +161,7 @@ function generate_bar_plot() {
 
 function format_chart(data, labels, rotate) {
 	var w = graph_width, h = graph_height;
-	var x = d3.scale.linear().domain([0, 1]).range([w, 2*w]); 
+	var x = d3.scale.linear().domain([0, 1]).range([20, 20+w]); 
 	var y = d3.scale.linear().domain([0, 1]).rangeRound([0, h]);
 	var yp = d3.scale.linear().domain([1, 0]).rangeRound([0, h]);
 	var i = 0;
@@ -154,20 +169,20 @@ function format_chart(data, labels, rotate) {
 	var chart = d3.select("#resultsGraphs").append("svg")
 	   .attr("class", "chart")
 	   .attr("width", w * data.length - 1 + 2 * w)
-	   .attr("height", 2 * h);
+	   .attr("height", h + 40);
 
 	// x-axis
 	chart.append("line")
 	   .attr("x1", w)
-	   .attr("x2", w * data.length + w)
+	   .attr("x2", w * data.length + 20)
 	   .attr("y1", h + 10)
 	   .attr("y2", h + 10)
 	   .style("stroke", "#000");
 	
 	// y-axis
 	chart.append("line")
-	   .attr("x1", w - 2)
-	   .attr("x2", w - 2)
+	   .attr("x1", 20 - 2)
+	   .attr("x2", 20 - 2)
 	   .attr("y1", 10)
 	   .attr("y2", h +10)
 	   .style("stroke", "#000");
@@ -181,8 +196,8 @@ function format_chart(data, labels, rotate) {
 	 	.attr("transform", function(d) { return "translate(0," + (yp(d) + 10) + ")"; });
 	 
 	 rules.append("line")
-	   .attr("x1", w - 5)
-	   .attr("x2", w * data.length + w)
+	   .attr("x1", 15)
+	   .attr("x2", w * data.length + 20)
 	   .style("stroke", "#000");
 	 
 	 rules.append("text")
@@ -201,7 +216,7 @@ function format_chart(data, labels, rotate) {
 		   .attr("fill", function(d) { return d.color; });
 	
 	// add labels
-	var offset = w + 5;
+	var offset = 25;
 	if (group_by_value) {
 		var x_spacing = (data.length / labels.length) * w;
 		for(i = 0;i<labels.length;i++) {

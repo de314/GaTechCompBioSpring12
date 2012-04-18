@@ -129,7 +129,7 @@ function PfoldGrammar(name, seqs) {
 		out += "Knudson-Hein:\n";
 		out += "S->LS\t" + this.prob.kh[S_LS].toFixed(num_dec) + "\tS->L\t" + this.prob.kh[S_L].toFixed(num_dec);
 		out += "\nL->t\t" + this.prob.kh[L_t].toFixed(num_dec) + "\tL->dFd\t" + this.prob.kh[L_dFd].toFixed(num_dec);
-		out += "\nD->dFd\t" + this.prob.kh[F_dFd].toFixed(num_dec) + "\tF->LS\t" + this.prob.kh[F_LS].toFixed(num_dec);
+		out += "\nF->dFd\t" + this.prob.kh[F_dFd].toFixed(num_dec) + "\tF->LS\t" + this.prob.kh[F_LS].toFixed(num_dec);
 		out += "\n\nPfold Unpaired Nucleotides:\nA\tC\tG\tU\n";
 		var i,j;
 		for (i=0;i<4;i++)
@@ -154,7 +154,7 @@ function PfoldGrammar(name, seqs) {
 		out += "Knudson-Hein Counts:\n";
 		out += "S->LS\t" + this.counts.kh[S_LS] + "\tS->L\t" + this.counts.kh[S_L];
 		out += "\nL->t\t" + this.counts.kh[L_t] + "\tL->dFd\t" + this.counts.kh[L_dFd];
-		out += "\nD->dFd\t" + this.counts.kh[F_dFd] + "\tF->LS\t" + this.counts.kh[F_LS];
+		out += "\nF->dFd\t" + this.counts.kh[F_dFd] + "\tF->LS\t" + this.counts.kh[F_LS];
 		out += "\n\nPfold Unpaired Nucleotides Counts:\nA\tC\tG\tU\n";
 		var i,j;
 		for (i=0;i<4;i++)
@@ -172,6 +172,46 @@ function PfoldGrammar(name, seqs) {
 		var i,j;
 		for (i=0;i<4;i++)
 			out += this.counts.nuc[i] + "\t";
+		return out;
+	};
+	this.csv_counts = function() {
+		var out = this.name + "\n";
+		out += "Knudson-Hein:\n";
+		out += "S->LS,\tS->L,\tL->t,\tL->dFd,\tF->dFd,\tF->LS\n";
+		
+		out += this.counts.kh[S_LS] + ",\t" + this.counts.kh[S_L] + ",\t" + this.counts.kh[L_t] + "\t,";
+		out += this.counts.kh[L_dFd] + ",\t" + this.counts.kh[F_dFd] + ",\t" + this.counts.kh[F_LS];
+		out += "\nPfold Unpaired Nucleotides:\nA,\tC,\tG,\tU\n";
+		var i;
+		for (i=0;i< 3;i++)
+			out += this.counts.upn[i] + ",\t";
+		out += this.counts.upn[3];
+		// A*
+		out += "\nPfold Base Pair:\nAA,\tAC,\tAG,\tAU\n";
+		for (i=0;i< 3;i++)
+			out += this.counts.bp[A][i] + ",\t";
+		out += this.counts.bp[A][3];
+		// C*
+		out += "\nCA,\tCC,\tCG,\tCU\n";
+		for (i=0;i< 3;i++)
+			out += this.counts.bp[C][i] + ",\t";
+		out += this.counts.bp[C][3];
+		// G*
+		out += "\nGA,\tGC,\tGG,\tGU\n";
+		for (i=0;i< 3;i++)
+			out += this.counts.bp[G][i] + ",\t";
+		out += this.counts.bp[G][3];
+		// U*
+		out += "\nUA,\tUC,\tUG,\tUU\n";
+		for (i=0;i< 3;i++)
+			out += this.counts.bp[U][i] + ",\t";
+		out += this.counts.bp[U][3];
+		
+		out += "\nNucleotide Distribution:\nA,\tC,\tG,\tU\n";
+		var i,j;
+		for (i=0;i< 3;i++)
+			out += this.counts.nuc[i] + ",\t";
+		out += this.counts.nuc[3];
 		return out;
 	};
 }

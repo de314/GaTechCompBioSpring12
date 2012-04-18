@@ -2,6 +2,8 @@ var selectedList = 0;
 var li_id_count = 0;
 var ul_id_count = 0;
 var trainingSets = new Object();
+var csvStatus = 0;
+var currently_deleting = 0;
 
 
 function addNewTrainingSet() {
@@ -9,37 +11,18 @@ function addNewTrainingSet() {
 }
 
 function addTrainingSet2(title, seqs) {
-	$('.container')
-			.append(
-					"<div class='list' id='ul"
-							+ ul_id_count
-							+ "'><div id='title' class='title' onclick='selTitle(this)'><span id='name'>"
-							+ title
-							+ "</span>&nbsp;"+getDeleteIconString()+"</div><ul></ul></div></div>");
-	var ts = new TrainingSet($("#ul" + ul_id_count), title);
-	trainingSets["ul" + ul_id_count] = ts;
-	ul_id_count++;
-	for ( var i in seqs) {
-		$('ul:last').append(
-				"<li id='li" + li_id_count + "'>" + seqs[i].name + "</li>");
-		ts.add(seqs[i]);
-		seqs[i].ele = $("#li" + li_id_count);
-		seqs[i].ele.attr("seq", seqs[i].seq);
-		seqs[i].ele.attr("str", seqs[i].str);
-		li_id_count++;
-	}
-	resetLists();
+	addTrainingSet3(title, seqs, "0xFFF");
 }
 
 function addTrainingSet3(title, seqs, color) {
 	$('.container')
 			.append(
-					"<div class='list' style='background:"+color+"' id='ul"
+					"<div class='list' style='background:"+color+";' id='ul"
 							+ ul_id_count
 							+ "'><div id='title' class='title' onclick='selTitle(this)'><span id='name'>"
 							+ title
 							+ "</span>&nbsp;"+getDeleteIconString()+"</div><ul></ul></div></div>");
-	var ts = new TrainingSet($("#ul" + ul_id_count), title);
+	var ts = new TrainingSet($("#ul" + ul_id_count), title, 0, color);
 	trainingSets["ul" + ul_id_count] = ts;
 	ul_id_count++;
 	for ( var i in seqs) {
@@ -74,22 +57,31 @@ function appendTrainingSet2(id, seqs) {
 }
 
 function deleteTSet(ele) {
+	$('#titleSet').hide();
+	$('#colorSet').hide();
+	if (selectedList)
+		selectedList.css("border", "");
+	selectedList = 0;
 	delete trainingSets[$(ele.parentNode.parentNode).attr('id')];
 	$(ele.parentNode.parentNode).remove();
-	selectedList = 0;
+	currently_deleting = 1;
 }
 
 function selTitle(ele) {
+	if (currently_deleting) {
+		currently_deleting = 0;
+		return;
+	}
 	if (selectedList)
 		selectedList.css("border", "");
 	else {
-		$('#titleSet').toggle();
-		$('#colorSet').toggle();
+		$('#titleSet').show();
+		$('#colorSet').show();
 	}
 	if (ele.length == 0 || selectedList[0] == ele.parentNode) {
 		selectedList = 0;
-		$('#titleSet').toggle();
-		$('#colorSet').toggle();
+		$('#titleSet').hide();
+		$('#colorSet').hide();
 		return;
 	}
 	selectedList = $(ele.parentNode);
@@ -143,6 +135,13 @@ function endsWith(str, suffix) {
 }
 
 function receiveFile(data, status) {
+	if (data.errors && data.errors.length > 0) {
+		var err = "Errors:\n";
+		for (var i=0;i<data.errors.length;i++)
+			err += data.errors[i] + "\n";
+		alert(err);
+		return;
+	}
 	var rna = handleSeq(data);
 	if (rna) {
 		var seqs = new Array();
@@ -180,11 +179,24 @@ function receiveZip(data, status) {
 /**/
 
 function receiveZip(data, status) {
+	console.debug(data);
 	var i;
 	var ts_collection = new Array();
-	console.debug(data);
-	for (i = 0; i < data.length; i++)
-		addTrainingSet3(data[i].name, handleTS(data[i]), data[i].color);
+	for (i = 0; i < data.length; i++) {
+		if (data[i].errors && data[i].errors.length > 0)
+			handleErrors(data[i]);
+		else
+			addTrainingSet3(data[i].name, handleTS(data[i]), data[i].color);
+	}
+}
+
+function handleErrors(ts) {
+	if (ts.errors && ts.errors.length > 0) {
+		var err = "Errors:\n";
+		for (var i=0;i<ts.errors.length;i++)
+			err += ts.errors[i] + "\n";
+		alert(err);
+	}
 }
 
 function asynch_submit(target_url, return_func) {
@@ -216,7 +228,8 @@ function train_grammars() {
 		grammars.push(g);
 		var exp = new Expectations(g);
 		exp.calculate();
-		var out = "<table style='border:2px solid "+trainingSets[ts].color+";'><tr><td><pre>" + g.output() + "</pre></td><td>";
+		var out = "<button onClick='swapRawText();'>View CSV Output</button><br />";
+		out += "<table style='border:2px solid "+trainingSets[ts].color+";'><tr><td><pre>" + g.output() + "</pre></td><td>";
 		out += "<pre>" + g.output_counts() + "</pre></td><td>";
 		out += "<pre>" + exp.output() + "</pre></td></tr></table>";
 		$("#resultsText").append(out);
@@ -226,3 +239,32 @@ function train_grammars() {
 	generate_graphs();
 	$("#tabs").tabs("select", 1);
 }
+
+function swapRawText(ele) {
+	$("#resultsText").html("");
+	csvStatus = !csvStatus;
+	var btnText = csvStatus ? "View Formatted Summmary" : "View CSV Output";
+	var grammars = new Array();
+	var out = "<button onClick='swapRawText();'>"+btnText+"</button><br />";
+	for (var ts in trainingSets) {
+		var g = train_grammar(trainingSets[ts]);
+		grammars.push(g);
+		var exp = new Expectations(g);
+		exp.calculate();
+		if (csvStatus) {
+			out += "<pre>" + g.csv_counts() + "</pre><br />\n<br />\n";
+		} else {
+			out += "<table style='border:2px solid "+trainingSets[ts].color+";'><tr><td><pre>" + g.output() + "</pre></td><td>";
+			out += "<pre>" + g.output_counts() + "</pre></td><td>";
+			out += "<pre>" + exp.output() + "</pre></td></tr></table>";
+			/**/
+		}
+		trainingSets[ts].grammar = g;
+	}
+	$("#resultsText").append(out);
+	$("#resultsText").append('<p><b>NOTE:</b> "NaN" means "Not a Number". This usually means that there are no sequences in the training set.<\p>');
+	generate_graphs();
+	$("#tabs").tabs("select", 2);
+	/**/
+}
+
