@@ -25,9 +25,9 @@ html {height:100%;}
 
 .ui-draggable-dragging {z-index:9999;}
 
-#drag_drop { text-align:center; height:100%; position:relative; background-color:#fff;}
+#drag_drop { text-align:center; position:relative; background-color:#fff;}
 #drag_drop .container { padding:20px;}
-#drag_drop .list {width:175px; padding:0 20px; float:left; overflow: hidden; display: table;}
+#drag_drop .list {width:150px; padding:0 20px; float:left; overflow: hidden; display: table;}
 #drag_drop .list .title {font-size:15px; font-weight:bold;}
 #drag_drop .list ul {}
 #drag_drop .list ul li {list-style:none; background-color:gray; margin:2px; height:20px; padding-top:3px; cursor:pointer; width:100%;}

@@ -8,6 +8,7 @@ var group_by_value = 1;
 var graph_width = 20;
 var graph_height = 80;
 var switch_button_text = "Group by training set";
+var chartCount = 0;
 
 function switch_grouping() {
 	if (group_by_value)
@@ -123,53 +124,55 @@ function generate_bar_plot() {
 			for (i=0;i<nuc_arr.length;i++)
 				data_bp_u.push({"time": count++, "value": trainingSets[ts].grammar.prob.bp[U][i], "color": trainingSets[ts].color });
 	}
-	
-	$("#resultsGraphs").html("");
-	// Size presets
-	$("#resultsGraphs").append("<button onclick='change_size(20,80);'><span>Resize Graphs: Small<span></button>");
-	$("#resultsGraphs").append("<button onclick='change_size(30,120);'><span>Resize Graphs: Medium<span></button>");
-	$("#resultsGraphs").append("<button onclick='change_size(40,160);'><span>Resize Graphs: Large<span></button><br />");
+	var jq_id = "#barGraph";
+	var ele = $(jq_id);
+	ele.html("");
 	// Fine size adjustment
-	$("#resultsGraphs").append("<button onclick='change_size2(-5,0);'><span>Width--<span></button>");
-	$("#resultsGraphs").append("<button onclick='change_size2(5,0);'><span>Width++<span></button>");
-	$("#resultsGraphs").append("<button onclick='change_size2(0,-5);'><span>Height--<span></button>");
-	$("#resultsGraphs").append("<button onclick='change_size2(0,5);'><span>Height++<span></button><br />");
+	ele.append("<button onclick='change_size2(-5,0);'><span>Width--<span></button>");
+	ele.append("<button onclick='change_size2(5,0);'><span>Width++<span></button>");
+	ele.append("<button onclick='change_size2(0,-5);'><span>Height--<span></button>");
+	ele.append("<button onclick='change_size2(0,5);'><span>Height++<span></button>");
+	// Size presets
+	ele.append("<button onclick='change_size(20,80);'><span>Sm<span></button>");
+	ele.append("<button onclick='change_size(30,120);'><span>Med<span></button>");
+	ele.append("<button onclick='change_size(40,160);'><span>Lg<span></button><br />");
 	// Grouping
-	$("#resultsGraphs").append("<p><button id='switch_bttn' onclick='switch_grouping();'><span id='switch_text'>"+ switch_button_text + "<span></button></p>");
+	ele.append("<p><button id='switch_bttn' onclick='switch_grouping();'><span id='switch_text'>"+ switch_button_text + "<span></button></p>");
 	
-	$("#resultsGraphs").append("<h3>Knudsen-Hein Probabilities</h3>");	
-	format_chart(data_kh, kh_labels, true);
+	ele.append("<h3>Knudsen-Hein Probabilities</h3>");	
+	format_chart(data_kh, kh_labels, true, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Nucleotide Distribution Probabilities</h3>");
-	format_chart(data_nuc, nuc_labels, false);
+	ele.append("<h3>Nucleotide Distribution Probabilities</h3>");
+	format_chart(data_nuc, nuc_labels, false, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Unpaired Nucleotide Probabilities</h3>");	
-	format_chart(data_upn, nuc_labels, false);
+	ele.append("<h3>Unpaired Nucleotide Probabilities</h3>");	
+	format_chart(data_upn, nuc_labels, false, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Basepair A* Probabilities</h3>");
-	format_chart(data_bp_a, bp_a_labels, true);
+	ele.append("<h3>Basepair A* Probabilities</h3>");
+	format_chart(data_bp_a, bp_a_labels, true, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Basepair C* Probabilities</h3>");
-	format_chart(data_bp_c, bp_c_labels, true);
+	ele.append("<h3>Basepair C* Probabilities</h3>");
+	format_chart(data_bp_c, bp_c_labels, true, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Basepair G* Probabilities</h3>");
-	format_chart(data_bp_g, bp_g_labels, true);
+	ele.append("<h3>Basepair G* Probabilities</h3>");
+	format_chart(data_bp_g, bp_g_labels, true, jq_id);
 	
-	$("#resultsGraphs").append("<h3>Basepair U* Probabilities</h3>");
-	format_chart(data_bp_u, bp_u_labels, true);
+	ele.append("<h3>Basepair U* Probabilities</h3>");
+	format_chart(data_bp_u, bp_u_labels, true, jq_id);
 }
 
-function format_chart(data, labels, rotate) {
+function format_chart(data, labels, rotate, jq_id) {
 	var w = graph_width, h = graph_height;
 	var x = d3.scale.linear().domain([0, 1]).range([20, 20+w]); 
 	var y = d3.scale.linear().domain([0, 1]).rangeRound([0, h]);
 	var yp = d3.scale.linear().domain([1, 0]).rangeRound([0, h]);
 	var i = 0;
 	
-	var chart = d3.select("#resultsGraphs").append("svg")
+	var chart = d3.select(jq_id).append("svg")
 	   .attr("class", "chart")
-	   .attr("width", w * data.length - 1 + 2 * w)
-	   .attr("height", h + 40);
+	   .attr("width", w * data.length - 1 + 2 * w + 35)
+	   .attr("height", h + 40)
+	   .attr("id", "chart"+(chartCount++));
 
 	// x-axis
 	chart.append("line")
@@ -211,9 +214,12 @@ function format_chart(data, labels, rotate) {
 		   .enter().append("rect")
 		   .attr("x", function(d, i) { return x(i) - .5; })
 		   .attr("y", function(d) { return h - y(d.value) + 8; })
+		   .attr("val", function(d){return d.value;})
 		   .attr("width", w)
 		   .attr("height", function(d) { return y(d.value); })
-		   .attr("fill", function(d) { return d.color; });
+		   .attr("fill", function(d) { return d.color; })
+		   .attr("onmouseover", "displayY();")
+		   .attr("onmouseout", "hideY();");
 	
 	// add labels
 	var offset = 25;
@@ -241,132 +247,6 @@ function format_chart(data, labels, rotate) {
 	}
 }
 
-function generate_matrix_plot() {
-
-	$("#resultsGraphs").html("<h1 id='scatterplot_matrix'>Scatterplot Matrix</h1><div id='chart'> </div>");
-	$("#resultsGraphs").append("<p>Scatterplot matrix design invented by J. A. Hartigan; see also <a href='http://www.r-project.org/'>R</a> and <a href='http://www.ggobi.org/'>GGobi</a>.</p>");
-	
-	d3.json("flowers.json", function(flower) {
-
-	  // Size parameters.
-	  var size = 150,
-	      padding = 19.5,
-	      n = flower.traits.length;
-
-	  // Position scales.
-	  var x = {}, y = {};
-	  flower.traits.forEach(function(trait) {
-	    var value = function(d) { return d[trait]; },
-	        domain = [d3.min(flower.values, value), d3.max(flower.values, value)],
-	        range = [padding / 2, size - padding / 2];
-	    x[trait] = d3.scale.linear().domain(domain).range(range);
-	    y[trait] = d3.scale.linear().domain(domain).range(range.slice().reverse());
-	  });
-
-	  // Axes.
-	  var axis = d3.svg.axis()
-	      .ticks(5)
-	      .tickSize(size * n);
-
-	  // Brush.
-	  var brush = d3.svg.brush()
-	      .on("brushstart", brushstart)
-	      .on("brush", brush)
-	      .on("brushend", brushend);
-
-	  // Root panel.
-	  var svg = d3.select("#chart").append("svg")
-	      .attr("width", size * n + padding)
-	      .attr("height", size * n + padding);
-
-	  // X-axis.
-	  svg.selectAll("g.x.axis")
-	      .data(flower.traits)
-	    .enter().append("g")
-	      .attr("class", "x axis")
-	      .attr("transform", function(d, i) { return "translate(" + i * size + ",0)"; })
-	      .each(function(d) { d3.select(this).call(axis.scale(x[d]).orient("bottom")); });
-
-	  // Y-axis.
-	  svg.selectAll("g.y.axis")
-	      .data(flower.traits)
-	    .enter().append("g")
-	      .attr("class", "y axis")
-	      .attr("transform", function(d, i) { return "translate(0," + i * size + ")"; })
-	      .each(function(d) { d3.select(this).call(axis.scale(y[d]).orient("right")); });
-
-	  // Cell and plot.
-	  var cell = svg.selectAll("g.cell")
-	      .data(cross(flower.traits, flower.traits))
-	    .enter().append("g")
-	      .attr("class", "cell")
-	      .attr("transform", function(d) { return "translate(" + d.i * size + "," + d.j * size + ")"; })
-	      .each(plot);
-
-	  // Titles for the diagonal.
-	  cell.filter(function(d) { return d.i == d.j; }).append("text")
-	      .attr("x", padding)
-	      .attr("y", padding)
-	      .attr("dy", ".71em")
-	      .text(function(d) { return d.x; });
-
-	  function plot(p) {
-	    var cell = d3.select(this);
-
-	    // Plot frame.
-	    cell.append("rect")
-	        .attr("class", "frame")
-	        .attr("x", padding / 2)
-	        .attr("y", padding / 2)
-	        .attr("width", size - padding)
-	        .attr("height", size - padding);
-
-	    // Plot dots.
-	    cell.selectAll("circle")
-	        .data(flower.values)
-	      .enter().append("circle")
-	        .attr("class", function(d) { return d.species; })
-	        .attr("cx", function(d) { return x[p.x](d[p.x]); })
-	        .attr("cy", function(d) { return y[p.y](d[p.y]); })
-	        .attr("r", 3);
-
-	    // Plot brush.
-	    cell.call(brush.x(x[p.x]).y(y[p.y]));
-	  }
-
-	  // Clear the previously-active brush, if any.
-	  function brushstart(p) {
-	    if (brush.data !== p) {
-	      cell.call(brush.clear());
-	      brush.x(x[p.x]).y(y[p.y]).data = p;
-	    }
-	  }
-
-	  // Highlight the selected circles.
-	  function brush(p) {
-	    var e = brush.extent();
-	    svg.selectAll("circle").attr("class", function(d) {
-	      return e[0][0] <= d[p.x] && d[p.x] <= e[1][0]
-	          && e[0][1] <= d[p.y] && d[p.y] <= e[1][1]
-	          ? d.species : null;
-	    });
-	  }
-
-	  // If the brush is empty, select all circles.
-	  function brushend() {
-	    if (brush.empty()) svg.selectAll("circle").attr("class", function(d) {
-	      return d.species;
-	    });
-	  }
-
-	  function cross(a, b) {
-	    var c = [], n = a.length, m = b.length, i, j;
-	    for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
-	    return c;
-	  }
-	});
-}
-
 function getRGB(color) {
     var result;
 
@@ -387,19 +267,36 @@ function getRGB(color) {
     	return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
 }
 
-/*
-function hex2rgb( colour ) {
-    if ( colour[0] == '#' )
-    	colour = substr( colour, 1 );
-    if ( $colour.length == 6 )
-    	list( $r, $g, $b ) = array( $colour[0] . $colour[1], $colour[2] . $colour[3], $colour[4] . $colour[5] );
-    else if ( strlen( $colour ) == 3 )
-    	list( $r, $g, $b ) = array( $colour[0] . $colour[0], $colour[1] . $colour[1], $colour[2] . $colour[2] );
-    else
-    	return false;
-    $r = hexdec( $r );
-    $g = hexdec( $g );
-    $b = hexdec( $b );
-    return array( 'red' => $r, 'green' => $g, 'blue' => $b );
+function displayY() {
+	var e = window.event;
+	if (e) {
+		updateY(e);
+		$(e.target).mousemove(updateY);
+	}
 }
-*/
+
+function updateY(e) {
+	if (e) {
+		var ele = $('#posText');
+		if (ele)
+			ele.remove();
+		var jq_id = "#"+e.target.parentElement.id;
+		ele = $(jq_id);
+		var pos = {};
+		pos.x = e.pageX - ele.position().left;
+		pos.y = e.pageY - ele.position().top;
+		d3.select(jq_id).append('text')
+			.attr('id', 'posText')
+			.attr('x', pos.x)
+			.attr('y', pos.y - 20)
+			.text($(e.target).attr("val"));
+		/**/
+	}
+}
+
+function hideY() {
+	var ele = $('#posText');
+	if (ele)
+		ele.remove();
+	$(document).mousemove();
+}

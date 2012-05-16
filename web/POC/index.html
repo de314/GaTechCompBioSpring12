@@ -10,13 +10,15 @@
 	<!--    Drag and Drop    -->
     <link rel="stylesheet" type="text/css" href="css/demo.css" media="all" />
      
+    <!--
     <script type="text/javascript" src="js/jquery.drag_drop_multi_select_alpha.js"></script>
     <script type="text/javascript" src="js/jquery.jcss_align.js"></script>
-	<script type="text/javascript" src="js/ajaxfileupload.js"></script>
+	<script type="text/javascript" src="js/ajaxfileupload.min.js"></script>
     <script type="text/javascript" src="js/math-utils.js"></script>
-    <!--
-    <script type="text/javascript" src="js/js-utils.min.js"></script>
     -->
+    
+    <script type="text/javascript" src="js/utils.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
 	
 	    
 	<!--    P-TAME    -->
@@ -24,6 +26,7 @@
     <script type="text/javascript" src="js/d3/d3.v2.min.js"></script>
 	<script type="text/javascript" src="js/drag-n-drop.js"></script>
     <script type="text/javascript" src="js/graph-front.js"></script>
+    <script type="text/javascript" src="js/comparative-front.js"></script>
     <script type="text/javascript" src="js/training-front.js"></script>
     <script type="text/javascript" src="js/compbio.js"></script>
     <script type="text/javascript" src="js/compbio_objects.js"></script>
@@ -55,7 +58,7 @@
 		<li><a href="#tabs-4">Why</a></li>
 		<li><a href="#tabs-5">Help</a></li>
 	</ul>
-<div id="tabs-1">
+<div id="tabs-1" style="height:100%;">
 <!-- -->
   <div style="float:left;width:250px;border:1px solid #000;padding:15px;">
   	<form name="form1" action="" method="POST" enctype="multipart/form-data">
@@ -128,20 +131,123 @@
 		<a href="other/SampleSequences.tar.gz">Download Sample Sequences</a>
     </p>
   </div>
-    <div id="drag_drop" class="demo" style="float:left;width:700px;border:1px solid #000;">
+  <div id="drag_drop" class="demo" style="float:left;width:750px;border:1px solid #000;">
         <div class="container" style="overflow:hidden;">
         
         	<!--    LISTS    -->
         
-            <div class="clear"></div>
+            <div id="bottomClearDiv" class="clear"></div>
         </div>
         <div class="Sequences_selected"></div>
     </div>
+    <div id="bottomClearDiv" style="clear:both;" class="clear">&nbsp;<br /></div>
 </div>
 
 <!-- Visual Results -->
 <div id="tabs-2">
-	<p id="resultsGraphs">Train the grammars to see results here</p>
+	<select onchange="updateCompFront();" style="float:left" id="Yax">
+		<option value="S-&gt;LS">S-&gt;LS</option>
+		<option value="S-&gt;L">S-&gt;L</option>
+		<option value="L-&gt;t">L-&gt;t</option>
+		<option value="L-&gt;dFd">L-&gt;dFd</option>
+		<option value="F-&gt;dFd">F-&gt;dFd</option>
+		<option value="F-&gt;LS">F-&gt;LS</option>
+		<option value="Dist. A">Dist. A</option>
+		<option value="Dist. C">Dist. C</option>
+		<option value="Dist. G">Dist. G</option>
+		<option value="Dist. U">Dist. U</option>
+		<option value="Un-Matched A">Un-Matched A</option>
+		<option value="Un-Matched C">Un-Matched C</option>
+		<option value="Un-Matched G">Un-Matched G</option>
+		<option value="Un-Matched U">Un-Matched U</option>
+		<option value="BP AA">BP AA</option>
+		<option value="BP AC">BP AC</option>
+		<option value="BP AG">BP AG</option>
+		<option value="BP AU">BP AU</option>
+		<option value="BP CA">BP CA</option>
+		<option value="BP CC">BP CC</option>
+		<option value="BP CG">BP CG</option>
+		<option value="BP CU">BP CU</option>
+		<option value="BP GA">BP GA</option>
+		<option value="BP GC">BP GC</option>
+		<option value="BP GG">BP GG</option>
+		<option value="BP GU">BP GU</option>
+		<option value="BP UA">BP UA</option>
+		<option value="BP UC">BP UC</option>
+		<option value="BP UG">BP UG</option>
+		<option value="BP UU">BP UU</option>
+	</select>
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="600px" height="400px">
+	  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
+	  <text x="40%" y="15" id="ChartTitle">Title</text>
+	</svg>
+	<p style="width:400px;">
+		<select onchange="updateCompFront();;" style="float:right;" id="Xax">
+		<option value="S-&gt;LS">S-&gt;LS</option>
+		<option value="S-&gt;L">S-&gt;L</option>
+		<option value="L-&gt;t">L-&gt;t</option>
+		<option value="L-&gt;dFd">L-&gt;dFd</option>
+		<option value="F-&gt;dFd">F-&gt;dFd</option>
+		<option value="F-&gt;LS">F-&gt;LS</option>
+		<option value="Dist. A">Dist. A</option>
+		<option value="Dist. C">Dist. C</option>
+		<option value="Dist. G">Dist. G</option>
+		<option value="Dist. U">Dist. U</option>
+		<option value="Un-Matched A">Un-Matched A</option>
+		<option value="Un-Matched C">Un-Matched C</option>
+		<option value="Un-Matched G">Un-Matched G</option>
+		<option value="Un-Matched U">Un-Matched U</option>
+		<option value="BP AA">BP AA</option>
+		<option value="BP AC">BP AC</option>
+		<option value="BP AG">BP AG</option>
+		<option value="BP AU">BP AU</option>
+		<option value="BP CA">BP CA</option>
+		<option value="BP CC">BP CC</option>
+		<option value="BP CG">BP CG</option>
+		<option value="BP CU">BP CU</option>
+		<option value="BP GA">BP GA</option>
+		<option value="BP GC">BP GC</option>
+		<option value="BP GG">BP GG</option>
+		<option value="BP GU">BP GU</option>
+		<option value="BP UA">BP UA</option>
+		<option value="BP UC">BP UC</option>
+		<option value="BP UG">BP UG</option>
+		<option value="BP UU">BP UU</option>
+		</select>
+	</p>
+    <div id="bottomClearDiv" style="clear:both;" class="clear">&nbsp;<br /></div>
+    <table cellspacing="20px">
+    	<tr>
+    		<td>
+    			<span id="smgLock0" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[0].tog();'></span>
+    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[0].maximize();'></span>
+    			<div id="smgTitle0">&nbsp;</div>
+    			<div id="smgSVG0">
+					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
+					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
+					</svg>
+    			</div>
+    		</td><td>
+    			<span id="smgLock1" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[1].tog();'></span>
+    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[1].maximize();'></span>
+    			<div id="smgTitle1">&nbsp;</div>
+    			<div id="smgSVG1">
+					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
+					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
+					</svg>
+    			</div>
+    		</td><td>
+    			<span id="smgLock2" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[2].tog();'></span>
+    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[2].maximize();'></span>
+    			<div id="smgTitle2">&nbsp;</div>
+    			<div id="smgSVG2">
+					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
+					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
+					</svg>
+    			</div>
+    		</td>
+    	</tr>
+    </table>
 </div>
 <!-- -->
 

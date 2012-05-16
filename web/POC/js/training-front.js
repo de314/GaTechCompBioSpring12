@@ -34,6 +34,9 @@ function addTrainingSet3(title, seqs, color) {
 		seqs[i].ele.attr("str", seqs[i].str);
 		li_id_count++;
 	}
+	//style="clear:both;"
+	$("#bottomClearDiv").remove();
+	$('.container').append('<div id="bottomClearDiv" style="clear:both;" class="clear">&nbsp;<br /></div>');
 	resetLists();
 }
 
@@ -54,6 +57,9 @@ function appendTrainingSet2(id, seqs) {
 		li_id_count++;
 	}
 	resetLists();
+	//style="clear:both;"
+	$("#bottomClearDiv").remove();
+	$('.container').append('<div id="bottomClearDiv" style="clear:left;" class="clear"></div>');
 }
 
 function deleteTSet(ele) {
@@ -179,7 +185,6 @@ function receiveZip(data, status) {
 /**/
 
 function receiveZip(data, status) {
-	console.debug(data);
 	var i;
 	var ts_collection = new Array();
 	for (i = 0; i < data.length; i++) {
@@ -221,50 +226,60 @@ function asynch_submit(target_url, return_func) {
 }
 
 function train_grammars() {
-	$("#resultsText").html("");
-	var grammars = new Array();
+	showFormatted();
+	$("#tabs").tabs("select", 2);
+}
+
+function getHeading() {
+	return "<a href='#' onClick='showFormatted();'>View Formatted Text</a>&nbsp;&nbsp;" + 
+	"<a href='#' onClick='showBar();'>View Bar Graphs</a>&nbsp;&nbsp;" +
+	"<a href='#' onClick='showCSV();'>View CSV Output</a>&nbsp;&nbsp;"+
+	'<p><b>NOTE:</b> "NaN" means "Not a Number". This usually means that there are no sequences in the training set.<\p>'+
+	"<hr /><br />";
+}
+
+function showFormatted() {
+	$("#resultsText").html(getHeading());
+	var out = "";
 	for (var ts in trainingSets) {
-		var g = train_grammar(trainingSets[ts]);
-		grammars.push(g);
+		var g = trainingSets[ts].grammar;
+		if (!g) {
+			g = train_grammar(trainingSets[ts]);
+			trainingSets[ts].grammar = g;
+		}
 		var exp = new Expectations(g);
 		exp.calculate();
-		var out = "<button onClick='swapRawText();'>View CSV Output</button><br />";
 		out += "<table style='border:2px solid "+trainingSets[ts].color+";'><tr><td><pre>" + g.output() + "</pre></td><td>";
 		out += "<pre>" + g.output_counts() + "</pre></td><td>";
 		out += "<pre>" + exp.output() + "</pre></td></tr></table>";
-		$("#resultsText").append(out);
-		$("#resultsText").append('<p><b>NOTE:</b> "NaN" means "Not a Number". This usually means that there are no sequences in the training set.<\p>');
-		trainingSets[ts].grammar = g;
-	}
-	generate_graphs();
-	$("#tabs").tabs("select", 1);
-}
-
-function swapRawText(ele) {
-	$("#resultsText").html("");
-	csvStatus = !csvStatus;
-	var btnText = csvStatus ? "View Formatted Summmary" : "View CSV Output";
-	var grammars = new Array();
-	var out = "<button onClick='swapRawText();'>"+btnText+"</button><br />";
-	for (var ts in trainingSets) {
-		var g = train_grammar(trainingSets[ts]);
-		grammars.push(g);
-		var exp = new Expectations(g);
-		exp.calculate();
-		if (csvStatus) {
-			out += "<pre>" + g.csv_counts() + "</pre><br />\n<br />\n";
-		} else {
-			out += "<table style='border:2px solid "+trainingSets[ts].color+";'><tr><td><pre>" + g.output() + "</pre></td><td>";
-			out += "<pre>" + g.output_counts() + "</pre></td><td>";
-			out += "<pre>" + exp.output() + "</pre></td></tr></table>";
-			/**/
-		}
-		trainingSets[ts].grammar = g;
 	}
 	$("#resultsText").append(out);
-	$("#resultsText").append('<p><b>NOTE:</b> "NaN" means "Not a Number". This usually means that there are no sequences in the training set.<\p>');
+}
+
+function showCSV() {
+	$("#resultsText").html(getHeading());
+	var out = "<textarea cols='80' rows='20'>";
+	for (var ts in trainingSets) {
+		var g = trainingSets[ts].grammar;
+		if (!g) {
+			g = train_grammar(trainingSets[ts]);
+			trainingSets[ts].grammar = g;
+		}
+		out +=  g.csv_counts() + "\n\n\n";
+	}
+	$("#resultsText").append(out).append("</textarea>");
+}
+
+function showBar() {
+	$("#resultsText").html(getHeading());
+	$("#resultsText").append("<div id='barGraph'></div>");
+	for (var ts in trainingSets) {
+		var g = trainingSets[ts].grammar;
+		if (!g) {
+			g = train_grammar(trainingSets[ts]);
+			trainingSets[ts].grammar = g;
+		}
+	}
 	generate_graphs();
-	$("#tabs").tabs("select", 2);
-	/**/
 }
 

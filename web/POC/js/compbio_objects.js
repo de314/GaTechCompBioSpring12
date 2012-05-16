@@ -179,7 +179,7 @@ function PfoldGrammar(name, seqs) {
 		out += "Knudson-Hein:\n";
 		out += "S->LS,\tS->L,\tL->t,\tL->dFd,\tF->dFd,\tF->LS\n";
 		
-		out += this.counts.kh[S_LS] + ",\t" + this.counts.kh[S_L] + ",\t" + this.counts.kh[L_t] + "\t,";
+		out += this.counts.kh[S_LS] + ",\t" + this.counts.kh[S_L] + ",\t" + this.counts.kh[L_t] + ",\t";
 		out += this.counts.kh[L_dFd] + ",\t" + this.counts.kh[F_dFd] + ",\t" + this.counts.kh[F_LS];
 		out += "\nPfold Unpaired Nucleotides:\nA,\tC,\tG,\tU\n";
 		var i;
