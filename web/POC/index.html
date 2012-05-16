@@ -1,35 +1,15 @@
 <html>
 <head>
 
-	<!--    JQuery    -->
 	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.18.custom.css" media="all" />
-    
-    
-	<!--    Drag and Drop    -->
-    <link rel="stylesheet" type="text/css" href="css/demo.css" media="all" />
-     
-    <!--
-    <script type="text/javascript" src="js/jquery.drag_drop_multi_select_alpha.js"></script>
-    <script type="text/javascript" src="js/jquery.jcss_align.js"></script>
-	<script type="text/javascript" src="js/ajaxfileupload.min.js"></script>
-    <script type="text/javascript" src="js/math-utils.js"></script>
-    -->
-    
+    <script type="text/javascript" src="js/d3/d3.v2.min.js"></script>    
     <script type="text/javascript" src="js/utils.min.js"></script>
-    <script type="text/javascript" src="js/main.min.js"></script>
-	
-	    
-	<!--    P-TAME    -->
-    <!-- -->
-    <script type="text/javascript" src="js/d3/d3.v2.min.js"></script>
-	<script type="text/javascript" src="js/drag-n-drop.js"></script>
-    <script type="text/javascript" src="js/graph-front.js"></script>
+    <script type="text/javascript" src="js/main.min.1.js"></script>
+    
+    <!-- TODO: Finish and Minimize -->
     <script type="text/javascript" src="js/comparative-front.js"></script>
     <script type="text/javascript" src="js/training-front.js"></script>
-    <script type="text/javascript" src="js/compbio.js"></script>
-    <script type="text/javascript" src="js/compbio_objects.js"></script>
     <script type="text/javascript" src="js/compbio_expectations.js"></script>
     <script type="text/javascript">
 	    var uploadHelp = 0;
@@ -40,11 +20,11 @@
     		$('#titleSet').hide();
     		$('#colorSet').hide();
     		$('#buttonUpload').hide();
-    	})
+    	});
     </script>
-    <!-- 
-    <script type="text/javascript" src="js/compbio_min.js"></script>
-    -->
+    
+    <link rel="stylesheet" type="text/css" href="css/main.min.css" media="all" />
+    
 
 </head>
 <body>
@@ -219,27 +199,33 @@
     <table cellspacing="20px">
     	<tr>
     		<td>
-    			<span id="smgLock0" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[0].tog();'></span>
-    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[0].maximize();'></span>
-    			<div id="smgTitle0">&nbsp;</div>
+    			<div style="padding:8px;">
+    				<span id="smgLock0" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[0].tog();'></span>
+    				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[0].maximize();'></span>
+    				<div id="smgTitle0">&nbsp;</div>
+    			</div>
     			<div id="smgSVG0">
 					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
 					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
 					</svg>
     			</div>
     		</td><td>
-    			<span id="smgLock1" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[1].tog();'></span>
-    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[1].maximize();'></span>
-    			<div id="smgTitle1">&nbsp;</div>
+    			<div style="padding:8px;">
+    				<span id="smgLock1" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[1].tog();'></span>
+    				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[1].maximize();'></span>
+    				<div id="smgTitle1">&nbsp;</div>
+    			</div>
     			<div id="smgSVG1">
 					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
 					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
 					</svg>
     			</div>
     		</td><td>
-    			<span id="smgLock2" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[2].tog();'></span>
-    			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[2].maximize();'></span>
-    			<div id="smgTitle2">&nbsp;</div>
+    			<div style="padding:8px;">
+    				<span id="smgLock2" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[2].tog();'></span>
+    				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[2].maximize();'></span>
+    				<div id="smgTitle2">&nbsp;</div>
+    			</div>
     			<div id="smgSVG2">
 					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
 					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />

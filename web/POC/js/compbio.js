@@ -1,20 +1,4 @@
-// Array Indices
-var A = 0;
-var C = 1;
-var G = 2;
-var U = 3;
-var S     = 0;
-var S_LS  = 1;
-var S_L   = 2;
-var L     = 3;
-var L_t   = 4;
-var L_dFd = 5;
-var F     = 6;
-var F_dFd = 7;
-var F_LS  = 8;
-// Training Count Variables
-var NUN = 0;
-var NBP = 0;
+
 
 function train_grammar(ts) {
 	var g = new PfoldGrammar(ts.name, ts.sequences);

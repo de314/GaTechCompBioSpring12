@@ -290,7 +290,7 @@ function updateY(e) {
 			.attr('x', pos.x)
 			.attr('y', pos.y - 20)
 			.text($(e.target).attr("val"));
-		/**/
+		
 	}
 }
 

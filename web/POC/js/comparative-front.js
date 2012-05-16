@@ -5,6 +5,7 @@ $(document).ready(function() {
 	getSmallGraph(0);
 	getSmallGraph(1);
 	getSmallGraph(2);
+	updateCompFront();
 });
 
 function updateCompFront() {
