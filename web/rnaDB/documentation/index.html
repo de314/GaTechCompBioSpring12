@@ -1,0 +1,143 @@
+<html>
+<head>
+	<title>Georgia Tech RNA Database Documentation</title>
+	<style>
+		li {
+			margin: 10px;
+			padding: 10px;
+			border: solid #000 1px;
+			background: #FEF1B5;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Georgia Tech RNA Database Documentation</h2>
+	<ul>
+		<li><p style="font-weight:bold;">May 28th 2011</p>
+<pre>
+I have a functional version of my SCFG web application which can be found at http://www.DavidEsposito.info/ptame. Note that this has only been tested in Chrome 18 on Ubuntu 11.10. It has passed my initial testing, but I have not tested all cases. Still needs to be done:
+
+   - Graph rendering bug for interactive graph. Displayed incorrectly when rendered on a tab which does not have focus. Low priority because it fixes itself once any variable in the graph is changed.
+   + Give more useful variables names for interactive graph. Should be simple and take a semi-short amount of time to make sure all back end code handles new implementation.
+   + Double check expectation values for correctness. I saw an interesting result but have not looked into it yet.
+   - Provide better demo training sets. Possibly the filtered training sets I used.
+   - Redo videos in help section with a different screen recorder since a few updates/forms did not appear correctly.
+   0 Add summary to the "Why" tab. 
+   - Minimize all Javascript and CSS for faster load times.
+   ++ TESTING in Chrome, Firefox and IE
+
+NOTE: { +, 0, - } ~> { High, Medium, Low } Priority
+
+
+I will have time this week to work on (and hopefully complete) all of the high priority tasks. I will do this in parallel with my paper outline, the RNA database and my Graph Theory readings. Please let me know if we need to set up a meeting time to discuss progress/deadlines/direction/graph theory. I will continue to stay busy
+</pre>
+		</li>
+		<li><p style="font-weight:bold;">May 16th 2011</p> 
+			<p>I have uploaded a <a href="http://www.DavidEsposito.info/REU/rnaDb">mock-up of the filtering interface</a> 
+			and <a href="http://www.davidesposito.info/REU/rnaDb/documentation/">this documentation</a>. 
+			The <a href="https://github.com/desposi1/GaTechCompBioSpring12/tree/master/web/rnaDB">code repository</a> 
+			is hosted on GitHub.
+			This documentation will be posted as an archive only, however I will be considering and discussing 
+			the benefits of providing edit access to other members of the research group. Eventually, this 
+			will be placed in a README file on the repository.</p>
+			<p>Note To Self: Look at this <a href="http://brandonaaron.net/code/mousewheel/demos">mouse wheel event handler 
+			library</a> for resizing abilities.</p>
+			<pre>
+
+Hello All,
+
+Details upfront and summary at the end. I have been working on both web applications, my Stochastic Context Free Grammar Trainer and the RNA Database.
+
+
+My SCFG application is nearly finished only missing:
+-------------------
+
+   - Interactive Graphs: Most of the front end code is in place. I need to write the graphing function then some back end code to keep everything neat. [[ 2 Days ]]
+
+   - Background Page: Write background information and about motivation for this (1) project and (2) application. (or copy from past papers and archived info) [[ 1 Day ]]
+
+   - Help Page: write tutorials and record video of performing simple tasks simple tasks [[ 1 Day ]]
+
+Considering that I will be out of town Fri-Mon with no computer and planning for unexpected bugs/problems I will have an complete ("acceptable") web application by Sunday May 27th. The site will be functional and the interface can be updated as needed in the future. I will spend 1 week looking over similar research articles and start planning my paper. this will decide on a journal and have and rough outline of my paper by Sunday June 3rd. I will have a rough draft of the paper done by Thursday June 7th and a revised version by Sunday June 10th. I am planning to leave one week for the final revision which should be complete Sunday May 17th. Please let me know if you think this is too ambitious, I often plan deadlines assuming that I will not be sleeping much.
+
+
+The RNA Database Application has a proof of concept front end but still needs:
+----------------------------
+
+   - Database design and implementation [[ 1 Day ]]
+
+   - PHP Server which includes three parts public API for JavaScript, file I/O system and MySQL back end for Database [[ 2 Day ]]
+
+   - Client Application which includes two parts GUI and JavaScript back end for communication with PHP Server [[ 2 Days ]]
+
+The time allotted will allow for development of an intuitive/efficient/scale-able web application and interface however the application can be completed sooner if we only want the functionality. Since this project is not of extremely high importance, I will be working on it in my spare time and will have it complete and ready for testing by Wednesday June 6th.
+
+
+Summary
+-------
+You can view/play with my <a href="http://www.DavidEsposito.info/REU/ptame/">SCFG Application</a> and the RNA Database Application (rnaDb documentation).
+
+   Sunday May 27 - Complete SCFG Application
+   Sunday June 3 - Choose Journal and Complete Paper Outline
+   Wednesday June 6 - Complete RNA Database Application
+   Thursday June 7 - Complete paper first draft
+   Sunday June 10 - Complete paper second draft
+   Sunday June 17 - Complete paper final draft
+   ... - Start SHAPE
+   
+   ~July 31 - End of semester
+
+			</pre>
+		</li>
+		<li><p style="font-weight:bold;">May 16th 2011<br />May 14th 2011</p> 
+			Email Conversation about planning the available database fields<br />
+			<pre>
+
+Hello All,
+
+Last semester Dr. Heitsch, Shel, Svetlana and I developed a robust filtering process for RNA structures to select ideal training sets for my project. A number of characteristics for each structure was entered into a database to simplify generating training sets. I will be creating a web site which allows you to define and download a set of sequences based on certain criteria. I am sending you this email because you will be potential users of the site in the future. Please let me know if you have any suggestions for filtering criteria to include or user interface implementation.
+
+Example Use Case: 
+[ Landing Page ] Login using GT Criteria and proceed to "RNA Set Description/Search Page"
+[ RNA Set Description/Search Page ] Select filter criteria e.g. 5S structures with > 80% MFE accuracy. Press "Retrieve Set" Button.
+[ RNA Set Summary Page ] Review set information displayed on screen. If set is acceptable, select structure file format i.e. *.CT, specify to include sequence alignments and or set summary report. Press the "Download Set" button. The server will prepare the requested files and compress all of them into a single *.zip archive. The use will be provided the link to the archived file. The archived file will remain available for at least 24 hours before it is deleted by the server.
+
+
+Right now I am planning to provide the following search/filter criteria:
+   - *{ 5S, 16S, 23S, tRNA }
+   - Has Sequence Alignment Entry
+   - *Sequence Length
+   - Ambiguous: sequences contains nucleotides other than { A, C, G, T, U }
+   - *Accession Number
+   - *Native Basepair Density: [ #Nat. BP / Seq. Len. ]
+   - *MFE Basepair Density: Predicted structure is forced to contain all base pairs from the native structure. Check how many extra basepairs MFE will fit in. [ #MFE BP / Seq. Len. ]
+   - *Stuffed Basepair Density: Checks how many extra basepairs MFE will fit in i.e. possible incompleteness of native structure. [ #Nat. BP / #MFE BP ]
+   - *MFE Accuracy: Based on GTfold predictions
+
+NOTE: Starred criteria will be included in report summary, see below for description.
+
+
+You will be able to download the following files in the following formats,
+   - Information to Request
+      - Native Structure
+      - MFE Predicted Structure (GTfold)
+      - Only sequence
+      - Sequence Alignment: if requested this will be provided in the fasta format for all files included in the set.
+      - Set summary: if requested this will provide the starred search/filter criteria in csv format for each sequence in set.
+   - File Format
+      - CT (sequence/structure)
+      - Dot-Bracket (sequence/structure)
+      - Fasta (sequence alignment)
+      - CSV (set summary)
+      - RNA (sequence/structure/alignment/criteria)
+
+
+Thanks and any input is much appreciated. I know how we used the filter criteria, but might not know how this could fit into your individual projects. Feel free to request additional functionality i.e. saved downloads/search criteria based on users...
+
+
+			</pre>
+		</li>
+	</ul>
+</body>
+</html>
