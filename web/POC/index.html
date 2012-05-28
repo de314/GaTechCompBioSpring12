@@ -283,7 +283,6 @@
 		<p>
 			David Esposito<br />
 			desposito6[at]gatech[dot]edu<br />
-			404.444.2215<br />
 			Computer Science 2011<br />
 			Discrete Mathematics<br />
 			Georgia Institute of Technology
@@ -293,8 +292,92 @@
 		<b>NOTE:</b> This help section assumes you familiarity with RNA secondary structure and only exists
 		to aid in efficient use of this web application.
 		</p>
-		<h3>Uploading Files:</h3>
-		<p>Coming Soon...</p>
+		<h1>Uploading And Manipulating Training Sets</h1>
+		<h3>Uploading Set</h3>
+		<p>
+			You can upload a single or collections of CT files to form training sets. Examples of these files can be
+			downloaded on the front page or provided by the <a href="http://www.rna.icmb.utexas.edu/">
+			Gutell Laboratory at the University of Texas at Austin</a>. Single files will always be uploaded in 
+			a new training set but the sequence can be moved into an existing training set.
+		</p>
+		<p>
+			Collections of sequences can be loaded using ZIP archive files. The collections will be processed one 
+			recursive level deep i.e. you may place sequences in the archived folder or in sub-folders. Sequcens in
+			the main archived folder will form a training set while each sub-folder will form a new training set. Each
+			training set will have the same name as its containing folder. For example: 
+		</p>
+		<p style="font-family: monospace;padding:5px;">
+<pre>-Training Set Archive
+    - Sequence00.ct
+    - Set 01
+       - Sequence01.ct
+       - Sequence02.ct
+    - Set 02
+       - Sequence03.ct
+       - Sequence04.ct
+    - Set 03
+       - Sequence05.ct
+       - Sequence06.ct
+</pre>
+		</p>
+		<p>Optionally, you may place an "info.txt" file
+			in each training set which can specify the training set name (line 1) and the RGB set color (line 2) e.g.
+		</p>
+		<p style="font-family: monospace;padding:15px;">
+			01. Training Set 01 <br />
+			02. #00AB14<br />
+			03.
+		</p>
+		<p>
+			There is no limit on the number of sequences which can be uploaded, but remember that the runtime of the application
+			is directly related to the number of sequences to be processed.
+		</p>
+		<p>
+			Note that duplicate sequences and training set names and colors are allowed and will not be filtered or "fixed".
+		</p>
+		<p>
+			<iframe width="420" height="315" src="http://www.youtube.com/embed/JOz7Ln8J2s4" frameborder="0" allowfullscreen></iframe>
+		</p>
+		<h3>Delete Training Set</h3>
+		<p>
+			Training sets can be deleted by clicking the RED X in the top right corner of the training set. Empty training sets
+			and training sets with sequences can be deleted.
+		</p>
+		<p>
+			<i>NOTE: There is no undo button!</i>
+		</p>
+		<p>
+			<iframe width="420" height="315" src="http://www.youtube.com/embed/JQ41UNAJMVQ" frameborder="0" allowfullscreen></iframe>
+		</p>
+		
+		<h3>Changing Training Set Properties</h3>
+		<p>
+			To edit a training set, the set must be selected; to select a set, click on the name of the set. A selected training
+			set will be surrounded with a bold black border. The training set name can be changed by using the form on the left 
+			once the training set is selected. The training set color can be changed by clicking on the pallet of colors. The 
+			color will be used to identify training sets while graphing the results. Custom RGB colors can be defined using an
+			"info.txt" file which is described above. 
+		</p>
+		<p>
+			<i>NOTE: There is no undo button!</i>
+		</p>
+		<p>
+			<iframe width="420" height="315" src="http://www.youtube.com/embed/mUkqhCYraHo" frameborder="0" allowfullscreen></iframe>
+		</p>
+		
+		<h3>Rearranging Sequences</h3>
+		<p>
+			Training sets can be changed by selecting sequences (similar to selecting desktop icons) then draging and droping 
+			them in the desired location. All the seuqnces in a training set can be moved then the set can be deleted if desired,
+			or a "Delete Me" set can be created, unwanted sequences moved to that set, then the set and sequences deleted.
+		</p>
+		<p>
+			<i>NOTE: There is no undo button!</i>
+		</p>
+		<p>
+			<iframe width="420" height="315" src="http://www.youtube.com/embed/C8vf9I6Vf8Y" frameborder="0" allowfullscreen></iframe>
+		</p>
+		
 	</div>
 </div>
 <!-- -->
