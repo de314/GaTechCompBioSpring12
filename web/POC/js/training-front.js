@@ -228,6 +228,7 @@ function asynch_submit(target_url, return_func) {
 function train_grammars() {
 	showFormatted();
 	$("#tabs").tabs("select", 2);
+	setVariables();
 }
 
 function getHeading() {

@@ -3,28 +3,61 @@
 
 	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
-    <script type="text/javascript" src="js/d3/d3.v2.min.js"></script>    
-    <script type="text/javascript" src="js/utils.min.js"></script>
-    <script type="text/javascript" src="js/main.min.1.js"></script>
+	
+	<script type="text/javascript" src="js/d3/d3.v2.min.js"></script>  
+	<script type="text/javascript" src="js/utils.min.js"></script>
+	<script type="text/javascript" src="js/main.min.1.js"></script>
     
-    <!-- TODO: Finish and Minimize -->
-    <script type="text/javascript" src="js/comparative-front.js"></script>
-    <script type="text/javascript" src="js/training-front.js"></script>
-    <script type="text/javascript" src="js/compbio_expectations.js"></script>
-    <script type="text/javascript">
+	<script type="text/javascript" src="js/jquery.flot.js"></script>
+	<script type="text/javascript" src="js/jquery.flot.navigate.js"></script>
+	<script type="text/javascript" src="js/flot_lib.js"></script>
+    
+	<!-- TODO: Finish and Minimize -->
+	<script type="text/javascript" src="js/comparative-front.js"></script>
+	<script type="text/javascript" src="js/training-front.js"></script>
+	<script type="text/javascript" src="js/compbio_expectations.js"></script>
+    
+    
+	<script type="text/javascript">
 	    var uploadHelp = 0;
 	    var editHelp = 0;
-    	$(document).ready(function() {
-    		$('#uploadHelp').hide();
-    		$('#editHelp').hide();
-    		$('#titleSet').hide();
-    		$('#colorSet').hide();
-    		$('#buttonUpload').hide();
-    	});
-    </script>
+		$(document).ready(function() {
+			$('#uploadHelp').hide();
+			$('#editHelp').hide();
+			$('#titleSet').hide();
+			$('#colorSet').hide();
+			$('#buttonUpload').hide();
+		});
+	</script>
     
-    <link rel="stylesheet" type="text/css" href="css/main.min.css" media="all" />
-    
+	<link rel="stylesheet" type="text/css" href="css/main.min.css" media="all" />
+
+	<style>
+		.miniChart {
+			width:150px;
+			height:150px;
+		}
+		#chartLG .button {
+	        position: absolute;
+	        cursor: pointer;
+	    }
+	    #chartLG div.button {
+	        font-size: smaller;
+	        color: #999;
+	        background-color: #eee;
+	        padding: 2px;
+	    }
+	    .message {
+	        padding-left: 50px;
+	        font-size: smaller;
+	    }
+	    .s {
+	        background-color: rgb(0, 0, 0);
+	    }
+	    .d {
+	        background-color: rgb(255, 255, 255);
+	    }
+	</style>
 
 </head>
 <body>
@@ -125,74 +158,80 @@
 
 <!-- Visual Results -->
 <div id="tabs-2">
-	<select onchange="updateCompFront();" style="float:left" id="Yax">
-		<option value="S-&gt;LS">S-&gt;LS</option>
-		<option value="S-&gt;L">S-&gt;L</option>
-		<option value="L-&gt;t">L-&gt;t</option>
-		<option value="L-&gt;dFd">L-&gt;dFd</option>
-		<option value="F-&gt;dFd">F-&gt;dFd</option>
-		<option value="F-&gt;LS">F-&gt;LS</option>
-		<option value="Dist. A">Dist. A</option>
-		<option value="Dist. C">Dist. C</option>
-		<option value="Dist. G">Dist. G</option>
-		<option value="Dist. U">Dist. U</option>
-		<option value="Un-Matched A">Un-Matched A</option>
-		<option value="Un-Matched C">Un-Matched C</option>
-		<option value="Un-Matched G">Un-Matched G</option>
-		<option value="Un-Matched U">Un-Matched U</option>
-		<option value="BP AA">BP AA</option>
-		<option value="BP AC">BP AC</option>
-		<option value="BP AG">BP AG</option>
-		<option value="BP AU">BP AU</option>
-		<option value="BP CA">BP CA</option>
-		<option value="BP CC">BP CC</option>
-		<option value="BP CG">BP CG</option>
-		<option value="BP CU">BP CU</option>
-		<option value="BP GA">BP GA</option>
-		<option value="BP GC">BP GC</option>
-		<option value="BP GG">BP GG</option>
-		<option value="BP GU">BP GU</option>
-		<option value="BP UA">BP UA</option>
-		<option value="BP UC">BP UC</option>
-		<option value="BP UG">BP UG</option>
-		<option value="BP UU">BP UU</option>
+	<select onchange="newPlot();" style="float:left" id="Yax">
+		<option value="S_LS">S-&gt;LS</option>
+		<option value="S_L">S-&gt;L</option>
+		<option value="L_t">L-&gt;t</option>
+		<option value="L_dFd">L-&gt;dFd</option>
+		<option value="F_dFd">F-&gt;dFd</option>
+		<option value="F_LS">F-&gt;LS</option>
+		<option value="da">Dist. A</option>
+		<option value="dc">Dist. C</option>
+		<option value="dg">Dist. G</option>
+		<option value="du">Dist. U</option>
+		<option value="una">Un-Matched A</option>
+		<option value="unc">Un-Matched C</option>
+		<option value="ung">Un-Matched G</option>
+		<option value="unu">Un-Matched U</option>
+		<option value="aa">BP AA</option>
+		<option value="ac">BP AC</option>
+		<option value="ag">BP AG</option>
+		<option value="au">BP AU</option>
+		<option value="ca">BP CA</option>
+		<option value="cc">BP CC</option>
+		<option value="cg">BP CG</option>
+		<option value="cu">BP CU</option>
+		<option value="ga">BP GA</option>
+		<option value="gc">BP GC</option>
+		<option value="gg">BP GG</option>
+		<option value="gu">BP GU</option>
+		<option value="ua">BP UA</option>
+		<option value="uc">BP UC</option>
+		<option value="ug">BP UG</option>
+		<option value="uu">BP UU</option>
 	</select>
-	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="600px" height="400px">
+	<!--
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="500px" height="500px">
 	  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
 	  <text x="40%" y="15" id="ChartTitle">Title</text>
 	</svg>
+	-->
+	<div style="width:330px;height:330px;float:left;background:#FFF;padding:15px;">
+		<div id="chartLG" style="width:300px;height:300px;float:left;background:#FFF;"></div>
+	</div>
+    <div id="legendHolder" style="float:left;background:#FFF;"></div>
 	<p style="width:400px;">
-		<select onchange="updateCompFront();;" style="float:right;" id="Xax">
-		<option value="S-&gt;LS">S-&gt;LS</option>
-		<option value="S-&gt;L">S-&gt;L</option>
-		<option value="L-&gt;t">L-&gt;t</option>
-		<option value="L-&gt;dFd">L-&gt;dFd</option>
-		<option value="F-&gt;dFd">F-&gt;dFd</option>
-		<option value="F-&gt;LS">F-&gt;LS</option>
-		<option value="Dist. A">Dist. A</option>
-		<option value="Dist. C">Dist. C</option>
-		<option value="Dist. G">Dist. G</option>
-		<option value="Dist. U">Dist. U</option>
-		<option value="Un-Matched A">Un-Matched A</option>
-		<option value="Un-Matched C">Un-Matched C</option>
-		<option value="Un-Matched G">Un-Matched G</option>
-		<option value="Un-Matched U">Un-Matched U</option>
-		<option value="BP AA">BP AA</option>
-		<option value="BP AC">BP AC</option>
-		<option value="BP AG">BP AG</option>
-		<option value="BP AU">BP AU</option>
-		<option value="BP CA">BP CA</option>
-		<option value="BP CC">BP CC</option>
-		<option value="BP CG">BP CG</option>
-		<option value="BP CU">BP CU</option>
-		<option value="BP GA">BP GA</option>
-		<option value="BP GC">BP GC</option>
-		<option value="BP GG">BP GG</option>
-		<option value="BP GU">BP GU</option>
-		<option value="BP UA">BP UA</option>
-		<option value="BP UC">BP UC</option>
-		<option value="BP UG">BP UG</option>
-		<option value="BP UU">BP UU</option>
+		<select onchange="newPlot();;" style="float:right;" id="Xax">
+		<option value="S_LS">S-&gt;LS</option>
+		<option value="S_L">S-&gt;L</option>
+		<option value="L_t">L-&gt;t</option>
+		<option value="L_dFd">L-&gt;dFd</option>
+		<option value="F_dFd">F-&gt;dFd</option>
+		<option value="F_LS">F-&gt;LS</option>
+		<option value="da">Dist. A</option>
+		<option value="dc">Dist. C</option>
+		<option value="dg">Dist. G</option>
+		<option value="du">Dist. U</option>
+		<option value="una">Un-Matched A</option>
+		<option value="unc">Un-Matched C</option>
+		<option value="ung">Un-Matched G</option>
+		<option value="unu">Un-Matched U</option>
+		<option value="aa">BP AA</option>
+		<option value="ac">BP AC</option>
+		<option value="ag">BP AG</option>
+		<option value="au">BP AU</option>
+		<option value="ca">BP CA</option>
+		<option value="cc">BP CC</option>
+		<option value="cg">BP CG</option>
+		<option value="cu">BP CU</option>
+		<option value="ga">BP GA</option>
+		<option value="gc">BP GC</option>
+		<option value="gg">BP GG</option>
+		<option value="gu">BP GU</option>
+		<option value="ua">BP UA</option>
+		<option value="uc">BP UC</option>
+		<option value="ug">BP UG</option>
+		<option value="uu">BP UU</option>
 		</select>
 	</p>
     <div id="bottomClearDiv" style="clear:both;" class="clear">&nbsp;<br /></div>
@@ -204,33 +243,21 @@
     				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[0].maximize();'></span>
     				<div id="smgTitle0">&nbsp;</div>
     			</div>
-    			<div id="smgSVG0">
-					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
-					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
-					</svg>
-    			</div>
+    			<div id="chartSM0" class="miniChart"></div>
     		</td><td>
     			<div style="padding:8px;">
     				<span id="smgLock1" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[1].tog();'></span>
     				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[1].maximize();'></span>
     				<div id="smgTitle1">&nbsp;</div>
     			</div>
-    			<div id="smgSVG1">
-					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
-					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
-					</svg>
-    			</div>
+    			<div id="chartSM1" class="miniChart"></div>
     		</td><td>
     			<div style="padding:8px;">
     				<span id="smgLock2" class="ui-icon ui-icon-unlocked" style="float:right;" onclick='smgList[2].tog();'></span>
     				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="float:right;" onclick='smgList[2].maximize();'></span>
     				<div id="smgTitle2">&nbsp;</div>
     			</div>
-    			<div id="smgSVG2">
-					<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="160px">
-					  <rect width="100%" height="100%" stroke="black" stroke-width="2" fill="#FFF" />
-					</svg>
-    			</div>
+    			<div id="chartSM2" class="miniChart"></div>
     		</td>
     	</tr>
     </table>
