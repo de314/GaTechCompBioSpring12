@@ -272,7 +272,24 @@
 
 <!-- Why -->
 <div id="tabs-4">
-	<p>Coming Soon...</p>
+	<div style="width:500px;">
+		<h3>Purpose</h3>
+		<p>
+			This application allows users to upload predefined training sets, then train the PFold grammmar and view the resulting 
+			parameters in multitple textual and graphical formats.
+		</p>
+		<h3>Background</h3>
+		<p>
+			More background information can be found in my <a href="http://www.davidesposito.info/REU/pdf/SCFG_REU_report_1.pdf">
+			research report</a> after completing the inital semester of research.
+		</p>
+		<h3>Findings</h3>
+		<p>
+			My research results can be view on <a href="http://www.davidesposito.info/REU/pdf/MAA_JSCFG_Poster_v2.pdf">this 
+			research poster</a> from the MAA Joint Meeting 2012 in Boston MA or <a href="http://www.davidesposito.info/REU/pdf/NimBios_JSCFG_Poster_v5.pdf">
+			this poster</a> from NIMBIOS Computational Biology Symposium in Knoxville TN.
+		</p>
+	</div>
 </div>
 <!-- -->
 
@@ -378,6 +395,45 @@
 			<iframe width="420" height="315" src="http://www.youtube.com/embed/C8vf9I6Vf8Y" frameborder="0" allowfullscreen></iframe>
 		</p>
 		
+		<h1>Training the Pfold Grammar</h1>
+		
+		<h3>Training the Grammar and Raw Results</h3>
+		<p>
+			Once the training sets are edited the "Traing Grammar with Uploaded Training Sets" button will process each training set
+			and automatically show the raw results. The raw results include raw parameter counts for each set, the calculated 
+			probabilities and the <a href="http://people.math.gatech.edu/~spoznanovikj6/scfg.pdf">RNA Motif Expectation</a> values 
+			as defined by Dr. Poznanovikj. The raw counts are also available in CSV (comma seperated values) format using the link
+			at the top of the page. A visual representation is provided using resizable bar graphs, available through the link at
+			the top of the page. The graphs can be appropriately resized for varying monitor resolutions. The bar graphs have two modes:
+			"Group by Training Set" and "Group by Value". The modes plot each value of a training set before starting a new training set
+			or plot each value of a parameter before starting a new parameter respectively. 
+		</p>
+		<p>
+			 <iframe width="420" height="315" src="http://www.youtube.com/embed/IQKq0lkwazQ" frameborder="0" allowfullscreen></iframe>
+		</p>
+		
+		<h3>Interactive Graph</h3>
+		<p>
+			Once the grammar has been trained on the grammar, the interactive graph will be automatically refreshed with the new
+			grammar parameters. This graph can be accessed on the "Visual Results" tab. The "y-axis" variable is controlled by 
+			the Drop-Down selector on the left of the graph. Note that once this element gains focus (most recently used element 
+			on page) the list can be navigated using the up and down arrow keys. The x-axis variable can be controlled similarly
+			using the Drop-Down selector below the graph. 
+		</p>
+		<p>
+			The three smaller graph allow the user to store a custom history of viwed graphs, saving interesting correlation or results.
+			Each small graph has two modes: unlocked and locked. As the user changes the large graph each unlocked small graph will 
+			also change; alternatively, a locked graph will not change with the large graph, saving its current state. This way, upto
+			four graphs can be viewed at once.  
+		</p>
+		<p>
+			By default, each graph will zoom to the tightest square which encloses the data. The large graph is interactive such 
+			that it allows zooming and panning using the double-click/scroll-wheel and click-n-drag respectively. The zoom range allows
+			for minimum range of [0.0, 1.0] and maximum resolution of [0.0, 0.00125]. 
+		</p>
+		<p>
+			 <iframe width="420" height="315" src="http://www.youtube.com/embed/XuLWs-7G6lM" frameborder="0" allowfullscreen></iframe>
+		</p>
 	</div>
 </div>
 <!-- -->
