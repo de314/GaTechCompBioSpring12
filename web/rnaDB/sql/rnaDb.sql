@@ -27,9 +27,8 @@ CREATE TABLE IF NOT EXISTS `rDB`.`pred` (
         INDEX ( `rid` )
 );
 
-INSERT INTO `rDB`.`rna` (`filename`, `type`, `seqlen`, `seq`, `str`, `family`, `den`)
+INSERT INTO `rna` (`filename`, `type`, `seqlen`, `seq`, `str`, `family`, `den`)
         VALUES ('test.ct', 'ct', 135, 0, '5S', 0.85);
 
-INSERT INTO `rDB`.`pred` (`rid`, `technique`, `filename`, `acc`, `den`, `stuff`)
+INSERT INTO `pred` (`rid`, `technique`, `filename`, `acc`, `den`, `stuff`)
         VALUES (1, 'gtfold', 'test.ct', 0.90, 0.85, 0.96);
-
