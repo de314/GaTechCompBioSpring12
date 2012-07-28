@@ -10,6 +10,70 @@ session_start();
 	<link type="text/css" href="css/smoothness/jquery-ui-1.8.20.custom.css" rel="stylesheet" />
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
+	<script type="text/javascript">
+		var currSizeId = 0;
+		function populateFormElement(jsonFormData) {
+			jsonFormData.family = ($("#familytRNA").is(':checked') ? "tRna,":"")+
+				($("#family5S").is(':checked') ? "5S,":"")+
+				($("#family16S").is(':checked') ? "16S,":"")+
+				($("#family23S").is(':checked') ? "23S,":"");
+			if (jsonFormData.family.length > 0)
+				jsonFormData.family = jsonFormData.family.substring(0,jsonFormData.family.length-1); 
+			$("#confirmFamily").html(jsonFormData.family);
+			jsonFormData.ambiguous = $("#ambiguous").is(':checked');
+			$("#confirmAmbiguous").html(jsonFormData.ambiguous ? "Allowed" : "Not Allowed");
+			jsonFormData.aligned = $("#aligned").is(':checked');
+			$("#confirmAligned").html(jsonFormData.aligned ? "Required" : "Not Required");
+			jsonFormData.seqLength = $("#sliderSeqLen").slider( "option", "values" );
+			$("#confirmLenMin").html(jsonFormData.seqLength[0]);
+			$("#confirmLenMax").html(jsonFormData.seqLength[1]);
+			jsonFormData.mfeAccuracy = $("#sliderPredAcc").slider( "option", "values" );
+			$("#confirmMfeAccMin").html(jsonFormData.mfeAccuracy[0] / 1000);
+			$("#confirmMfeAccMax").html(jsonFormData.mfeAccuracy[1] / 1000);
+			jsonFormData.name = $("#fileName").val();
+			$("#confirmName").html(jsonFormData.name);
+			jsonFormData.accession = $("#accessionNum").val();
+			$("#confirmAccession").html(jsonFormData.accession);
+			jsonFormData.natDensity = $("#sliderNatBpDen").slider( "option", "values" );
+			$("#confirmNatDenMin").html(jsonFormData.natDensity[0] / 1000);
+			$("#confirmNatDenMax").html(jsonFormData.natDensity[1] / 1000);
+			jsonFormData.predDensity = $("#sliderPredBpDen").slider( "option", "values" );
+			$("#confirmPredDenMin").html(jsonFormData.predDensity[0] / 1000);
+			$("#confirmPredDenMax").html(jsonFormData.predDensity[1] / 1000);
+			jsonFormData.stuffedDensity = $("#sliderStuffedBpDen").slider( "option", "values" );
+			$("#confirmStuffedDenMin").html(jsonFormData.stuffedDensity[0] / 1000);
+			$("#confirmStuffedDenMax").html(jsonFormData.stuffedDensity[1] / 1000);
+		}
+		function getSetSizeOut() {
+			currSizeId++;
+			var jsonFormData = {};
+			jsonFormData.sizeId = currSizeId;
+			populateFormElement(jsonFormData);
+			$.ajax({
+				type: 'POST',
+				url: "scripts/rnadb_api.php?getSize",
+				data: jsonFormData,
+				success: getSetSizeIn
+			});
+		}
+		function getSetSizeIn(data) {
+			var obj = eval('(' + data + ')');
+			if (obj.setId == currSizeId) {
+				$("#sizeBox").html("&nbsp;");
+				$("<span>Set Size: "+obj.setSize+"</span>").hide().appendTo("#sizeBox").fadeIn(2000);
+			}
+		}
+		function submitSearch() {
+			var jsonFormData = {};
+			populateFormElement(jsonFormData);
+			$.ajax({
+				type: 'POST',
+				url: "scripts/results.php",
+				data: jsonFormData,
+				success: getSetSizeIn
+			});
+		}
+	</script>
 	<style type="text/css">
 		.divLink { 
 			text-align:center;
@@ -19,6 +83,13 @@ session_start();
 			width: 100%;
 			padding: 15px;
 			color: #000;
+		}
+		.sizeBox {
+			position : fixed;
+			top      : 100px;
+			right    : 30px;
+			border	 : 1px solid black;
+			padding	 : 10px;
 		}
 		.topLink {
 			margin-top: 50px;
@@ -37,6 +108,11 @@ session_start();
 		 	font-weight: bold;
 		 	padding-top: 25px;
 		}
+		.confirmBox {
+			padding: 15px;
+			width: 600px;
+			align:center;
+		}
 	</style>
 </head>
 <body>
@@ -54,30 +130,33 @@ session_start();
 					<a href="#"><div class="divLink">Help</div></a>
 					<a href="#"><div class="divLink botLink">More Information</div></a>
 				</div>
+				<!-- Size Box -->
+				<div id="sizeBox" class="sizeBox">Set Size: 0</div>
 				<!-- Content-->
+				<form method="post" action="results.php">
 				<div id="nav" style="float:left;padding:30px;width:750px;">
 					<form style="margin-left:50px;">
 						
 						<!-- RNA Family -->
 						<p class="formHeader">Select RNA Group(s):</p>
 						<p id="rnaFamily" class="formItem">
-							<input type="checkbox" id="familytRNA" name="familytRNA" checked="1" /><label for="familytRNA">tRNA</label>
-							<input type="checkbox" id="family5S" name="family5S" checked="1" /><label for="family5S">5S rRNA</label>
-							<input type="checkbox" id="family16S" name="family16S" checked="1" /><label for="family16S">16S rRNA</label>
-							<input type="checkbox" id="family23S" name="family23S" checked="1" /><label for="family23S">23S rRNA</label>
+							<input type="checkbox" id="familytRNA" name="familytRNA" checked="1" onchange="getSetSizeOut();" /><label for="familytRNA">tRNA</label>
+							<input type="checkbox" id="family5S" name="family5S" checked="1" onchange="getSetSizeOut();" /><label for="family5S">5S rRNA</label>
+							<input type="checkbox" id="family16S" name="family16S" checked="1" onchange="getSetSizeOut();" /><label for="family16S">16S rRNA</label>
+							<input type="checkbox" id="family23S" name="family23S" checked="1" onchange="getSetSizeOut();" /><label for="family23S">23S rRNA</label>
 						</p>
 						
 						<!-- Ambiguous -->
 						<p class="formHeader">Allow ambiguous sequences.
-							<input type="checkbox" id="ambiguous" name="ambiguous" 
-								onclick="$('#ambLbl').find('span').html(this.checked?'Not Allowed':'Allowed');" />
+							<input type="checkbox" id="ambiguous" name="ambiguous" checked="1" 
+								onclick="$('#ambLbl').find('span').html(this.checked?'Allowed':'Not Allowed');getSetSizeOut();" />
 							<label id="ambLbl" for="ambiguous">Allowed</label>
 						</p>
 						
 						<!-- Alignable -->
 						<p class="formHeader">Only select sequences in alignment
-							<input type="checkbox" id="aligned" name="aligned" 
-								onclick="$('#aliLbl').find('span').html(this.checked?'All Sequences':'Only In Alignment');" />
+							<input type="checkbox" id="aligned" name="aligned" checked="1"
+								onclick="$('#aliLbl').find('span').html(this.checked?'Only In Alignment':'All Sequences');getSetSizeOut();" />
 							<label id="aliLbl" for="aligned">Only In Alignment</label>
 						</p>
 						
@@ -96,14 +175,14 @@ session_start();
 						</p>
 						<p class="formItem">
 							<label for="fileName">Name: </label>
-							<input type="text" id="fileName" name="fileName" />
+							<input type="text" id="fileName" name="fileName" onblur="getSetSizeOut();" />
 						</p>
 						
 						<!-- Accession Number -->
 						<p class="formHeader">Accession Num</p>
 						<p class="formItem">
-							<label for="fileName">Acc. #: </label>
-							<input type="text" id="fileName" name="fileName" />
+							<label for="accessionNum">Acc. #: </label>
+							<input type="text" id="accessionNum" name="accessionNum" onblur="getSetSizeOut();" />
 						</p>
 						
 						<!-- Native Base Pair Density -->
@@ -119,6 +198,28 @@ session_start();
 						<p id="rangeStuffedBpDen" class="formItem"></p> 
 					</form>
 				</div>
+				<!-- Confirm Box -->
+				<div class="confirmBox" id="confirmBox">
+					&nbsp;<br/>
+					&nbsp;<br/>
+					Confirm the following search criteria then submit the search below.<br />
+					&nbsp;<br/>
+					<b>Family:</b>&nbsp;&nbsp;{<span id="confirmFamily">tRna,5S,16S,23S</span>}<br />
+					<b>Ambiguous:</b>&nbsp;&nbsp;<span id="confirmAmbiguous">Allowed</span><br />
+					<b>Aligned:</b>&nbsp;&nbsp;<span id="confirmAligned">Required</span><br />
+					<b>Sequence Length:</b>&nbsp;&nbsp;<span id="confirmLenMin">0</span>-<span id="confirmLenMax">3000</span><br />
+					<b>MFE Accuracy:</b>&nbsp;&nbsp;<span id="confirmMfeAccMin">0</span>-<span id="confirmMfeAccMax">1</span><br />
+					<b>Name:</b>&nbsp;&nbsp;"<span id="confirmName"></span>"<br />
+					<b>Accession Number:</b>&nbsp;&nbsp;"<span id="confirmAccession"></span>"<br />
+					<b>Natural Density:</b>&nbsp;&nbsp;<span id="confirmNatDenMin">0</span>-<span id="confirmNatDenMax">1</span><br />
+					<b>Predicted Density:</b>&nbsp;&nbsp;<span id="confirmPredDenMin">0</span>-<span id="confirmPredDenMax">1</span><br />
+					<b>Stuffed Density:</b>&nbsp;&nbsp;<span id="confirmStuffedDenMin">0</span>-<span id="confirmStuffedDenMax">1</span><br />
+				</div>
+				<!-- Submit Box -->
+				<div class="submitBox" id="submitBox">
+					<input type="submit" value="Submit Search" />
+				</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -147,19 +248,23 @@ session_start();
 				values: [ min, max ],
 				slide: function( event, ui ) {
 					if (event && ui) {
-						console.debug(ui);
+						//console.debug(ui);
 						$("#min"+id).val(ui.values[ 0 ] / divider);
 						$("#max"+id).val(ui.values[ 1 ] / divider);
 					}
 				}
 			});
+			$("#slider"+id).live('blur', getSetSizeOut);
 			// TODO: text boxes to set slider
 			$('#min'+id).change(function() {
-				console.debug(slider);
-				slider.slide('values', [ this.value, slider.values[1]]);
+				var values = slider.slider( "option", "values" );
+				values[0] = $("#min"+id).val() * divider;
+				slider.slider( "option", "values", values );
 			});
 			$('#max'+id).change(function() {
-				slider.slider('values', [ slider.values[0], this.value]);
+				var values = slider.slider( "option", "values" );
+				values[1] = $("#max"+id).val() * divider;
+				slider.slider( "option", "values", values  );
 			});
 		}
 		$(document).ready(function() {

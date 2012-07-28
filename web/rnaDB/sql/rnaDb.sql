@@ -7,9 +7,11 @@ USE rDB;
 CREATE TABLE IF NOT EXISTS `rDB`.`rna` (
 	`rid`       int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`filename`  varchar(100) NOT NULL,
+	`accessionnum`  varchar(40) NOT NULL,
 	`type`      varchar(5) NOT NULL,
 	`seqlen`    int(5),
 	`ambiguous` int(1) NOT NULL,
+	`alignment` int(1) NOT NULL,
 	`family`    varchar(5) NOT NULL,
 	`den`       double precision NOT NULL,
 	PRIMARY KEY (`rid`)
