@@ -70,21 +70,22 @@ session_start();
 			var jsonFormData = {};
 			populateFormElement(jsonFormData);
 			$('<form id="searchForm" method="POST" action="results.php"></form>').appendTo('body');
+			//$('<form id="searchForm" method="POST" action="scripts/rnadb_api.php?getSize"></form>').appendTo('body');
 			$('<input>').attr({ type: 'hidden', name: 'family', value: jsonFormData.family }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'ambiguous', value: jsonFormData.ambiguous }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'aligned', value: jsonFormData.aligned }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'lenmin', value: jsonFormData.seqLength[0] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'lenmax', value: jsonFormData.seqLength[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] / 1000 }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'name', value: jsonFormData.name }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'accession', value: jsonFormData.accession }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmax', value: jsonFormData.predDensity[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmin', value: jsonFormData.stuffedDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmax', value: jsonFormData.stuffedDensity[1] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'preddenmax', value: jsonFormData.predDensity[1] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmin', value: jsonFormData.stuffedDensity[0] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmax', value: jsonFormData.stuffedDensity[1] / 1000 }).appendTo('#searchForm');
 			return $("#searchForm").submit();
 		}
 	</script>
@@ -144,10 +145,92 @@ session_start();
 					<a href="help.php"><div class="divLink">Help</div></a>
 					<a href="help.php?moreInfo"><div class="divLink botLink">More Information</div></a>
 				</div>
+				<!-- Size Box -->
+				<div id="sizeBox" class="sizeBox">Set Size: 0</div>
 				<!-- Content-->
 				<div id="nav" style="float:left;padding:30px;width:750px;">
-						More Coming Soon...
-				</div>	
+						
+						<!-- RNA Family -->
+						<p class="formHeader">Select RNA Group(s):</p>
+						<p id="rnaFamily" class="formItem">
+							<input type="checkbox" id="familytRNA" name="familytRNA" checked="1" onchange="getSetSizeOut();" /><label for="familytRNA">tRNA</label>
+							<input type="checkbox" id="family5S" name="family5S" checked="1" onchange="getSetSizeOut();" /><label for="family5S">5S rRNA</label>
+							<input type="checkbox" id="family16S" name="family16S" checked="1" onchange="getSetSizeOut();" /><label for="family16S">16S rRNA</label>
+							<input type="checkbox" id="family23S" name="family23S" checked="1" onchange="getSetSizeOut();" /><label for="family23S">23S rRNA</label>
+						</p>
+						
+						<!-- Ambiguous -->
+						<p class="formHeader">Allow ambiguous sequences.
+							<input type="checkbox" id="ambiguous" name="ambiguous" checked="1" 
+								onclick="$('#ambLbl').find('span').html(this.checked?'Allowed':'Not Allowed');getSetSizeOut();" />
+							<label id="ambLbl" for="ambiguous">Allowed</label>
+						</p>
+						
+						<!-- Alignable -->
+						<p class="formHeader">Only select sequences in alignment
+							<input type="checkbox" id="aligned" name="aligned" checked="1"
+								onclick="$('#aliLbl').find('span').html(this.checked?'Only In Alignment':'All Sequences');getSetSizeOut();" />
+							<label id="aliLbl" for="aligned">Only In Alignment</label>
+						</p>
+						
+						<!-- Sequence Length -->
+						<p class="formHeader">Sequence Length:</p>
+						<p id="rangeSeqLen" class="formItem"></p>
+						
+						<!-- Prediction Accuracy -->
+						<p class="formHeader">MFE Prediction Accuracy:</p>
+						<p id="rangePredAcc" class="formItem"></p>
+						
+						<!-- File Name -->
+						<p class="formHeader">
+							Sequence Name: <br />
+							<span style="font-size:10;">(Note: all searches performed with "LIKE %...%")</span>
+						</p>
+						<p class="formItem">
+							<label for="fileName">File Name: </label>
+							<input type="text" id="fileName" name="fileName" onblur="getSetSizeOut();" />
+						</p>
+						
+						<!-- Accession Number -->
+						<p class="formHeader">Accession Num</p>
+						<p class="formItem">
+							<label for="accessionNum">Acc. #: </label>
+							<input type="text" id="accessionNum" name="accessionNum" onblur="getSetSizeOut();" />
+						</p>
+						
+						<!-- Native Base Pair Density -->
+						<p class="formHeader">Native Base Pair Density:</p>
+						<p id="rangeNatBpDen" class="formItem"></p>
+						
+						<!-- Predicted Base Pair Density -->
+						<p class="formHeader">Predicted Base Pair Density:</p>
+						<p id="rangePredBpDen" class="formItem"></p>
+						
+						<!-- Stuffed Pair Density -->
+						<p class="formHeader">Stuffed Pair Density:</p>
+						<p id="rangeStuffedBpDen" class="formItem"></p> 
+				</div>
+				<!-- Confirm Box -->
+				<div class="confirmBox" id="confirmBox">
+					&nbsp;<br/>
+					&nbsp;<br/>
+					Confirm the following search criteria then submit the search below.<br />
+					&nbsp;<br/>
+					<b>Family:</b>&nbsp;&nbsp;{<span id="confirmFamily">tRna,5S,16S,23S</span>}<br />
+					<b>Ambiguous:</b>&nbsp;&nbsp;<span id="confirmAmbiguous">Allowed</span><br />
+					<b>Aligned:</b>&nbsp;&nbsp;<span id="confirmAligned">Required</span><br />
+					<b>Sequence Length:</b>&nbsp;&nbsp;<span id="confirmLenMin">0</span>-<span id="confirmLenMax">3000</span><br />
+					<b>MFE Accuracy:</b>&nbsp;&nbsp;<span id="confirmMfeAccMin">0</span>-<span id="confirmMfeAccMax">1</span><br />
+					<b>File Name:</b>&nbsp;&nbsp;"<span id="confirmName"></span>"<br />
+					<b>Accession Number:</b>&nbsp;&nbsp;"<span id="confirmAccession"></span>"<br />
+					<b>Natural Density:</b>&nbsp;&nbsp;<span id="confirmNatDenMin">0</span>-<span id="confirmNatDenMax">1</span><br />
+					<b>Predicted Density:</b>&nbsp;&nbsp;<span id="confirmPredDenMin">0</span>-<span id="confirmPredDenMax">1</span><br />
+					<b>Stuffed Density:</b>&nbsp;&nbsp;<span id="confirmStuffedDenMin">0</span>-<span id="confirmStuffedDenMax">1</span><br />
+				</div>
+				<!-- Submit Box -->
+				<div class="submitBox" id="submitBox">
+					<button onclick="submitSearch();">Submit Search</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -165,10 +248,10 @@ session_start();
 		}
 		function sliderRange(ele, id, min, max, divider) {
 			ele.html('<label for="min'+id+'">Min: </label><input type="text" id="min'+id+'" sliderId="slider'+id+'" '+
-				'name="min'+id+'" style="width:70px;" value="'+(min / divider)+'"" />'+
+				'name="min'+id+'" style="width:70px;" value="'+(min / divider)+'"" onblur="getSetSizeOut();" />'+
 				'<span id="slider'+id+'" style="width:50%;display:inline-block;margin-left:20px;margin-right:20px;"></span>'+
 				'<label for="max'+id+'">Max: </label><input type="text" id="max'+id+'" sliderId="slider'+id+'" '+
-				'name="max'+id+'" style="width:70px;" value="'+(max / divider)+'"" />');
+				'name="max'+id+'" style="width:70px;" value="'+(max / divider)+'"" onblur="getSetSizeOut();" />');
 			var slider = $("#slider"+id).slider({
 				range: true,
 				min: min,
@@ -209,6 +292,7 @@ session_start();
 		});
 		$(window).load(function() {
 			$('#tabs-1').append('<div id="bottomClearDiv" style="clear:both;" class="clear"></div>');
+			getSetSizeOut();
 		});
 		// TODO: validate sequence length and set slider
 	</script>

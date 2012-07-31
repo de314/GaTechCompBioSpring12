@@ -1,5 +1,7 @@
 <?php 
 
+include_once "rnadb.php";
+
 if (isset($_GET['add_nat'])) {
 	
 }
@@ -10,7 +12,7 @@ if (isset($_GET['add_pair'])) {
 
 }
 if (isset($_GET['search'])) {
-
+	// TODO
 }
 if (isset($_GET['downloadAll'])) {
 	// TODO
@@ -23,41 +25,46 @@ if (isset($_GET['downloadSelected'])) {
 		$arr[$i] = $arr[$i];
 	echo json_encode(array("link"=>"http://rnadb.math.gatech.edu/downloads/072720121847_selected_0.zip"));
 }
+
+/*
+Array
+(
+		[family] => tRna,5S,16S,23S
+		[ambiguous] => true
+		[aligned] => true
+		[lenmin] => 0
+		[lenmax] => 3000
+		[mfeaccmin] => 0
+		[mfeaccmax] => 1000
+		[name] =>
+		[accession] =>
+		[natdenmin] => 0
+		[natdenmax] => 1000
+		[preddenmin] => 0
+		[preddenmax] => 1000
+		[stuffeddenmin] => 0
+		[stuffeddenmax] => 1000
+)
+*/
 if (isset($_GET['getSize'])) {
-	// TODO: parse the following
-// 	family
-// 	ambiguous
-// 	aligned
-// 	seqLength
-// 	mfeAccuracy
-// 	name
-// 	accession
-// 	natDensity
-// 	predDensity
-// 	stuffedDensity
-	echo json_encode(array("setId"=>$_POST['sizeId'], "setSize"=>rand(0, 30000)));
+	$_POST['lenmin'] = $_POST['seqLength'][0];
+	$_POST['lenmax'] = $_POST['seqLength'][1];
+	$_POST['mfeaccmin'] = $_POST['mfeAccuracy'][0];
+	$_POST['mfeaccmax'] = $_POST['mfeAccuracy'][1];
+	$_POST['natdenmin'] = $_POST['natDensity'][0];
+	$_POST['natdenmax'] = $_POST['natDensity'][1];
+	$_POST['preddenmin'] = $_POST['predDensity'][0];
+	$_POST['preddenmax'] = $_POST['predDensity'][1];
+	$_POST['stuffeddenmin'] = $_POST['stuffedDensity'][0];
+	$_POST['stuffeddenmax'] = $_POST['stuffedDensity'][1];
+	$arr = getSequences_db($_POST);
+	echo json_encode(array("setId"=>$_POST['sizeId'], "setSize"=>count($arr)));
 }
 
 
 // public
 function getSequences($params) {
-	$arr = array();
-	$arr[] = getSequence(1);
-	$arr[] = getSequence(2);
-	$arr[] = getSequence(3);
-	$arr[] = getSequence(4);
-	$arr[] = getSequence(5);
-	$arr[] = getSequence(6);
-	$arr[] = getSequence(7);
-	$arr[] = getSequence(8);
-	$arr[] = getSequence(9);
-	$arr[] = getSequence(10);
-	$arr[] = getSequence(11);
-	$arr[] = getSequence(12);
-	$arr[] = getSequence(13);
-	$arr[] = getSequence(14);
-	$arr[] = getSequence(15);
-	$arr[] = getSequence(16);
+	$arr = getSequences_db($params);
 	return $arr;
 }
 

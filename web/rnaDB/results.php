@@ -4,9 +4,33 @@ session_start();
 
 include_once 'scripts/rnadb_api.php';
 
+if (!isset($_POST['family']))
+	header("Location: index.php");
+
+/*
+Array
+(
+    [family] => tRna,5S,16S,23S
+    [ambiguous] => true
+    [aligned] => true
+    [lenmin] => 0
+    [lenmax] => 3000
+    [mfeaccmin] => 0
+    [mfeaccmax] => 1000
+    [name] => 
+    [accession] => 
+    [natdenmin] => 0
+    [natdenmax] => 1000
+    [preddenmin] => 0
+    [preddenmax] => 1000
+    [stuffeddenmin] => 0
+    [stuffeddenmax] => 1000
+)
+ */
+
 function getRnaHtml($rna) {
 	return '<tr><td><input type="checkbox" rnaId='.$rna['rid'].' /></td><td>
-		<a href="#" onclick="alert(\'Display Info\');">'.$rna['name'].'</a></td>
+		'.$rna['name'].'</td>
 		<td>'.$rna["accession"].'</td>
 		<td>'.$rna["family"].'</td>
 		<td>'.$rna["seqLength"].'</td>
@@ -18,9 +42,8 @@ function getRnaHtml($rna) {
 		<td><a href="#" onclick="alert(\''.$rna["alignment"].'\');">View</a></td></tr>';
 }
 
-function populateTable() {
-	$params = array(); // TODO
-	$arr = getSequences($params);
+function populateTable($searchParams) {
+	$arr = getSequences($searchParams);
 	for($i=0;$i<count($arr);$i++)
 		echo getRnaHtml($arr[$i]);
 }
@@ -126,10 +149,10 @@ function populateTable() {
 			<div id="tabs-1" style="height:auto;">
 				<!-- Navigation -->
 				<div id="nav" class="navDiv">
-					<a href="#"><div class="divLink topLink">Home</div></a>
-					<a href="#"><div class="divLink">Search</div></a>
-					<a href="#"><div class="divLink">Help</div></a>
-					<a href="#"><div class="divLink botLink">More Information</div></a>
+					<a href="index.php"><div class="divLink topLink">Home</div></a>
+					<a href="search.php"><div class="divLink">Search</div></a>
+					<a href="help.php"><div class="divLink">Help</div></a>
+					<a href="help.php?moreInfo"><div class="divLink botLink">More Information</div></a>
 				</div>
 				<!-- Content-->
 				<div id="downloadButtons" class="leftMain">
@@ -154,7 +177,7 @@ function populateTable() {
 							<th>Ambiguous</th>
 							<th>Aligned</th>
 						</tr>
-						<?php populateTable(); ?>
+						<?php populateTable($_POST); ?>
 					</table>
 				</div>
 			</div>
