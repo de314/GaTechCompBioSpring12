@@ -17,8 +17,7 @@ Array
     [lenmax] => 3000
     [mfeaccmin] => 0
     [mfeaccmax] => 1000
-    [name] => 
-    [accession] => 
+    [name] =>  
     [natdenmin] => 0
     [natdenmax] => 1000
     [preddenmin] => 0
@@ -31,7 +30,6 @@ Array
 function getRnaHtml($rna) {
 	return '<tr><td><input type="checkbox" rnaId='.$rna['rid'].' /></td><td>
 		'.$rna['name'].'</td>
-		<td>'.$rna["accession"].'</td>
 		<td>'.$rna["family"].'</td>
 		<td>'.$rna["seqLength"].'</td>
 		<td>'.$rna["mfeAcc"].'</td>
@@ -60,43 +58,42 @@ function populateTable($searchParams) {
 		function changeAllCheckboxes() {
 			 $("INPUT[type='checkbox']").attr('checked', $('#cbAll').is(':checked'));
 		}
-		function downloadAllOut() {
-			$.ajax({
-				url: "scripts/rnadb_api.php?downloadAll",
-				context: document.body,
-				success: downloadAllIn 
-			});
-		}
-		function downloadAllIn(data) {
-			$("#downloadLinks").html("");
-			var obj = eval('(' + data + ')');
-			$("<span>Download Zipped File: <a href='" + obj.link + "'>" + obj.link + "</a></span>")
-				.hide()
-				.appendTo("#downloadLinks")
-				.fadeIn(2000);
-		}
-		function downloadSelectedOut() {
+		function downloadOut(all) {
 			var selected = "";
 			$("INPUT[type='checkbox']").each(function() {
 				var ele = $(this);
-				if (ele.attr('checked') && ele.attr('rnaId'))
+				if ((all | ele.attr('checked')=='checked') && ele.attr('rnaId')) {
 					selected += ele.attr('rnaId') + ",";
+				}
 			});
+			console.debug(selected);
 			if (selected.length > 0)
 				selected = selected.substring(0, selected.length-1);
+			var jsonData = {};
+			jsonData.selected = selected;
 			$.ajax({
-				url: "scripts/rnadb_api.php?downloadSelected&selected=1,2,3,4",
-				context: document.body,
-				success:downloadSelectedIn 
+				type: 'POST',
+				url: "scripts/rnadb_api.php?download",
+				data: jsonData,
+				success:downloadIn
 			});
+			$("#downloadLinks").html("<img src='images/loading_small.gif' />");
 		}
-		function downloadSelectedIn(data) {
+		function downloadIn(data) {
+			console.debug(data);
 			$("#downloadLinks").html("");
 			var obj = eval('(' + data + ')');
-			$("<span>Download Zipped File: <a href='" + obj.link + "'>" + obj.link + "</a></span>")
-				.hide()
-				.appendTo("#downloadLinks")
-				.fadeIn(2000);
+			if (obj.link) {
+				$("<span'>Download Zipped File: <a href='" + obj.link + "'>" + obj.link + "</a></span>")
+					.hide()
+					.appendTo("#downloadLinks")
+					.fadeIn(2000);
+			} else {
+				$("<span style='color:red;'>Download Error: " + obj.error + "</span>")
+					.hide()
+					.appendTo("#downloadLinks")
+					.fadeIn(2000);
+			}
 		}
 	</script>
 	<style type="text/css">
@@ -156,8 +153,8 @@ function populateTable($searchParams) {
 				</div>
 				<!-- Content-->
 				<div id="downloadButtons" class="leftMain">
-					<button onclick="downloadAllOut();">Download All Sequences</button>
-					<button onclick="downloadSelectedOut();">Download Selected Sequences</button>
+					<button onclick="downloadOut(true);">Download All Sequences</button>
+					<button onclick="downloadOut(false);">Download Selected Sequences</button>
 				</div>
 				<div id="downloadLinks" class="leftMain">
 					<i>Download links will appear here.</i>
@@ -167,7 +164,6 @@ function populateTable($searchParams) {
 						<tr>
 							<th><input id="cbAll" type="checkbox" onclick="changeAllCheckboxes();" /></th>
 							<th>Name</th>
-							<th>Accession Num.</th>
 							<th>Family</th>
 							<th>Seq. Length</th>
 							<th>MFE Acc.</th>

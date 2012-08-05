@@ -3,27 +3,32 @@
 
 include_once 'main_db.php';
 
-// expecting: { rid, filename, accessionnum, seqlen, ambiguous, alignment, family, den }
+// expecting: { filename, 
+//				seqlen, 
+//				ambiguous, 
+//				alignment, 
+//				family, 
+//				den }
 function insertStructure($rna) 
 {
 	// TODO: validate input
 	$con = connectToDB();
-	$sql = 'INSERT INTO `rna` (`rid`, `filename`, `accessionnum`, `seqlen`, `ambiguous`, `alignment`, `family`, `den`) VALUES 
-	(NULL ,  \''.$rna['filename'].'\',  \''.$rna['accessionnum'].'\', \''.$rna['seqlen'].'\', \''.$rna['ambiguous'].'\', \''.$rna['alignment'].'\', \''.$rna['family'].'\', \''.$rna['den'].'\');';
+	$sql = 'INSERT INTO `rna` (`rid`, `filename`, `seqlen`, `ambiguous`, `alignment`, `family`, `den`) VALUES 
+	(NULL ,  \''.$rna['filename'].'\', \''.$rna['seqlen'].'\', \''.$rna['ambiguous'].'\', \''.$rna['alignment'].'\', \''.$rna['family'].'\', \''.$rna['den'].'\');';
 	$result = desql($sql);
+	$rna['rid'] = mysql_insert_id();
+	insertPrediction($rna);
 	breakCon($con);
 	return $result;
 }
 
-// expecting: { rid, accuracy, den, stuf }
+// expecting: { rid, technique, predname, acc, pden, sden }
+// private
 function insertPrediction($pred) 
 {
-	// TODO: validate input
-	$con = connectToDB();
-	$sql = 'INSERT INTO `rna` (`predid`, `rid`, `accuracy`, `den`, `stuf`) VALUES 
-	(NULL, \''.$pred['rid'].'\', \''.$pred['accuracy'].'\', \''.$pred['den'].'\', \''.$pred['stuf'].'\');';
+	$sql = 'INSERT INTO `pred` (`predid`, `rid`, `technique`, `filename`, `acc`, `pden`, `sden`) VALUES 
+	(NULL, \''.$pred['rid'].'\', \''.$pred['technique'].'\', \''.$pred['predname'].'\', \''.$pred['acc'].'\', \''.$pred['pden'].'\', \''.$pred['sden'].'\');';
 	$result = desql($sql);
-	breakCon($con);
 	return $result;
 }
 
@@ -49,6 +54,17 @@ function getPredById($id)
 	return $result;
 }
 
+function get_filename($id) {
+	$con = connectToDB();
+	$sql = "SELECT `filename` FROM  `rna` WHERE  `rid` =$id";
+	$result = desql($sql);
+	$filename = 0;
+	if ($row = mysql_fetch_array($result))
+		$filename = $row["filename"];
+	breakCon($con);
+	return $filename;
+}
+
 /*
 	 Array
 	(
@@ -60,7 +76,6 @@ function getPredById($id)
 			[mfeaccmin] => 0
 			[mfeaccmax] => 1000
 			[name] =>
-			[accession] =>
 			[natdenmin] => 0
 			[natdenmax] => 1000
 			[preddenmin] => 0
@@ -69,11 +84,9 @@ function getPredById($id)
 			[stuffeddenmax] => 1000
 	)
 */
-function getSequences_db($params) 
+function getDbResults_db($params) 
 {
-	// TODO: validate input
-	$con = connectToDB();
-	$sql = 'SELECT * FROM `rna` JOIN `pred` ON `rna`.`rid`=`pred`.`rid` WHERE ';
+	$sql = 'SELECT * FROM `rna` LEFT JOIN `pred` ON `rna`.`rid`=`pred`.`rid` WHERE ';
 	
 	/*
 	 * HANDLE FAMILY
@@ -82,11 +95,13 @@ function getSequences_db($params)
 	$arr = explode(',', $params['family']);
 	for($sum=0;$sum<count($arr);$sum++)
 		$params[$arr[$sum]] = 1;
-	$opened = $sum;
+	$opened = 0;
 	$needOr = 0;
 	$needAnd = $sum;
-	if ($sum > 1)
+	if ($sum > 1) {
 		$sql .= '(';
+		$opened = 1;
+	}
 	if (isset($params['5s']))
 	{
 		$sql .= '`rna`.`family`=\'5S\' ';
@@ -172,18 +187,38 @@ function getSequences_db($params)
 		$sql .= '`rna`.`filename` LIKE \'%'.$params['name'].'%\' AND ';
 	
 	/*
-	 * HANDLE ACCESSION NUMBER
-	*/
-	if ($params['accession'] != '')
-	$sql .= '`rna`.`accessionnum` LIKE \'%'.$params['accession'].'%\' AND';
-	/*
 	 * HANDLE RANGES
 	 */
+	$sql .= '(`pred`.`acc` BETWEEN '.$params['mfeaccmin'].' AND '.$params['mfeaccmax'].') AND ';
 	$sql .= '(`rna`.`den` BETWEEN '.$params['natdenmin'].' AND '.$params['natdenmax'].') AND ';
 	$sql .= '(`pred`.`pden` BETWEEN '.$params['preddenmin'].' AND '.$params['preddenmax'].') AND ';
-	$sql .= '(`pred`.`sden` BETWEEN '.$params['stuffeddenmin'].' AND '.$params['stuffeddenmax'].');';
+	$sql .= '(`pred`.`sden` BETWEEN '.$params['stuffeddenmin'].' AND '.$params['stuffeddenmax'].')';
 	
-	$db_result = parseQueryResults(desql($sql));
+	$size = 100;
+	$offset = 0;
+	if (isset($params["size"]))
+		$size = $params["size"];
+	if (isset($params["offset"]))
+		$size = $params["offset"];
+	$sql .= " LIMIT $offset, $size;";
+	
+// 	echo $sql;
+	
+	$db_result = desql($sql);
+	return $db_result;
+}
+
+function getSize_db($params) {
+	$con = connectToDB();
+	$results = getDbResults_db($params);
+	$size = mysql_num_rows($results);
+	breakCon($con);
+	return $size;
+}
+
+function getSequences_db($params) {
+	$con = connectToDB();
+	$db_result = parseQueryResults(getDbResults_db($params));
 	breakCon($con);
 	return $db_result;
 }
@@ -199,7 +234,6 @@ function parseQueryResults($db_result)
 /*
 $rna['rid']
 $rna['name']
-$rna["accession"]
 $rna["family"]
 $rna["seqLength"]
 $rna["mfeAcc"]
@@ -217,7 +251,6 @@ function parseJoinedRow($row) {
 	$rna["alignment"] = $row['alignment'];
 	$rna["seqLength"] = $row['seqlen'];
 	$rna['name'] = $row['filename'];
-	$rna["accession"] = $row['accessionnum'];
 	$rna["natDensity"] = $row['den'];
 	$rna["mfeAcc"] = $row['acc'];
 	$rna["predDensity"] = $row['pden'];

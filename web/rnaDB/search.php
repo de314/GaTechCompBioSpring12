@@ -22,12 +22,19 @@ session_start();
 			jsonFormData.ambiguous = $("#ambiguous").is(':checked');
 			jsonFormData.aligned = $("#aligned").is(':checked');
 			jsonFormData.seqLength = $("#sliderSeqLen").slider( "option", "values" );
-			jsonFormData.mfeAccuracy = $("#sliderPredAcc").slider( "option", "values" );
+			jsonFormData.mfeAccuracy = $.extend(true, [], $("#sliderPredAcc").slider( "option", "values" ));
+			jsonFormData.mfeAccuracy[0] = jsonFormData.mfeAccuracy[0]/1000;
+			jsonFormData.mfeAccuracy[1] = jsonFormData.mfeAccuracy[1]/1000;
 			jsonFormData.name = $("#fileName").val();
-			jsonFormData.accession = $("#accessionNum").val();
-			jsonFormData.natDensity = $("#sliderNatBpDen").slider( "option", "values" );
-			jsonFormData.predDensity = $("#sliderPredBpDen").slider( "option", "values" );
-			jsonFormData.stuffedDensity = $("#sliderStuffedBpDen").slider( "option", "values" );
+			jsonFormData.natDensity = $.extend(true, [], $("#sliderNatBpDen").slider( "option", "values" ));
+			jsonFormData.natDensity[0] = jsonFormData.natDensity[0]/1000;
+			jsonFormData.natDensity[1] = jsonFormData.natDensity[1]/1000;
+			jsonFormData.predDensity = $.extend(true, [], $("#sliderPredBpDen").slider( "option", "values" ));
+			jsonFormData.predDensity[0] = jsonFormData.predDensity[0]/1000;
+			jsonFormData.predDensity[1] = jsonFormData.predDensity[1]/1000;
+			jsonFormData.stuffedDensity = $.extend(true, [], $("#sliderStuffedBpDen").slider( "option", "values" ));
+			jsonFormData.stuffedDensity[0] = jsonFormData.stuffedDensity[0]/1000;
+			jsonFormData.stuffedDensity[1] = jsonFormData.stuffedDensity[1]/1000;
 		}
 		function updateConfirmText(jsonFormData) { 
 			$("#confirmFamily").html(jsonFormData.family);
@@ -35,16 +42,15 @@ session_start();
 			$("#confirmAligned").html(jsonFormData.aligned ? "Required" : "Not Required");
 			$("#confirmLenMin").html(jsonFormData.seqLength[0]);
 			$("#confirmLenMax").html(jsonFormData.seqLength[1]);
-			$("#confirmMfeAccMin").html(jsonFormData.mfeAccuracy[0] / 1000);
-			$("#confirmMfeAccMax").html(jsonFormData.mfeAccuracy[1] / 1000);
+			$("#confirmMfeAccMin").html(jsonFormData.mfeAccuracy[0]);
+			$("#confirmMfeAccMax").html(jsonFormData.mfeAccuracy[1]);
 			$("#confirmName").html(jsonFormData.name);
-			$("#confirmAccession").html(jsonFormData.accession);
-			$("#confirmNatDenMin").html(jsonFormData.natDensity[0] / 1000);
-			$("#confirmNatDenMax").html(jsonFormData.natDensity[1] / 1000);
-			$("#confirmPredDenMin").html(jsonFormData.predDensity[0] / 1000);
-			$("#confirmPredDenMax").html(jsonFormData.predDensity[1] / 1000);
-			$("#confirmStuffedDenMin").html(jsonFormData.stuffedDensity[0] / 1000);
-			$("#confirmStuffedDenMax").html(jsonFormData.stuffedDensity[1] / 1000);
+			$("#confirmNatDenMin").html(jsonFormData.natDensity[0]);
+			$("#confirmNatDenMax").html(jsonFormData.natDensity[1]);
+			$("#confirmPredDenMin").html(jsonFormData.predDensity[0]);
+			$("#confirmPredDenMax").html(jsonFormData.predDensity[1]);
+			$("#confirmStuffedDenMin").html(jsonFormData.stuffedDensity[0]);
+			$("#confirmStuffedDenMax").html(jsonFormData.stuffedDensity[1]);
 		}
 		function getSetSizeOut() {
 			currSizeId++;
@@ -58,8 +64,10 @@ session_start();
 				data: jsonFormData,
 				success: getSetSizeIn
 			});
+			console.debug("sent");
 		}
 		function getSetSizeIn(data) {
+			console.debug(data);
 			var obj = eval('(' + data + ')');
 			if (obj.setId == currSizeId) {
 				$("#sizeBox").html("&nbsp;");
@@ -76,16 +84,16 @@ session_start();
 			$('<input>').attr({ type: 'hidden', name: 'aligned', value: jsonFormData.aligned }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'lenmin', value: jsonFormData.seqLength[0] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'lenmax', value: jsonFormData.seqLength[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'name', value: jsonFormData.name }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'accession', value: jsonFormData.accession }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmax', value: jsonFormData.predDensity[1] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmin', value: jsonFormData.stuffedDensity[0] / 1000 }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmax', value: jsonFormData.stuffedDensity[1] / 1000 }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'preddenmax', value: jsonFormData.predDensity[1] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmin', value: jsonFormData.stuffedDensity[0] }).appendTo('#searchForm');
+			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmax', value: jsonFormData.stuffedDensity[1] }).appendTo('#searchForm');
 			return $("#searchForm").submit();
 		}
 	</script>
@@ -191,13 +199,6 @@ session_start();
 							<input type="text" id="fileName" name="fileName" onblur="getSetSizeOut();" />
 						</p>
 						
-						<!-- Accession Number -->
-						<p class="formHeader">Accession Num</p>
-						<p class="formItem">
-							<label for="accessionNum">Acc. #: </label>
-							<input type="text" id="accessionNum" name="accessionNum" onblur="getSetSizeOut();" />
-						</p>
-						
 						<!-- Native Base Pair Density -->
 						<p class="formHeader">Native Base Pair Density:</p>
 						<p id="rangeNatBpDen" class="formItem"></p>
@@ -222,7 +223,6 @@ session_start();
 					<b>Sequence Length:</b>&nbsp;&nbsp;<span id="confirmLenMin">0</span>-<span id="confirmLenMax">3000</span><br />
 					<b>MFE Accuracy:</b>&nbsp;&nbsp;<span id="confirmMfeAccMin">0</span>-<span id="confirmMfeAccMax">1</span><br />
 					<b>File Name:</b>&nbsp;&nbsp;"<span id="confirmName"></span>"<br />
-					<b>Accession Number:</b>&nbsp;&nbsp;"<span id="confirmAccession"></span>"<br />
 					<b>Natural Density:</b>&nbsp;&nbsp;<span id="confirmNatDenMin">0</span>-<span id="confirmNatDenMax">1</span><br />
 					<b>Predicted Density:</b>&nbsp;&nbsp;<span id="confirmPredDenMin">0</span>-<span id="confirmPredDenMax">1</span><br />
 					<b>Stuffed Density:</b>&nbsp;&nbsp;<span id="confirmStuffedDenMin">0</span>-<span id="confirmStuffedDenMax">1</span><br />
@@ -283,7 +283,7 @@ session_start();
 			sliderRange($('#rangeSeqLen'),'SeqLen',0,3000, 1);
 			sliderRange($('#rangeNatBpDen'),'NatBpDen',0,1000, 1000);
 			sliderRange($('#rangePredBpDen'),'PredBpDen',0,1000, 1000);
-			sliderRange($('#rangeStuffedBpDen'),'StuffedBpDen',0,1000, 1000);
+			sliderRange($('#rangeStuffedBpDen'),'StuffedBpDen',0,2000, 1000);
 			sliderRange($('#rangePredAcc'),'PredAcc',0,1000, 1000);
 			$( "#ambiguous" ).button();
 			$( "#aligned" ).button();

@@ -1,29 +1,25 @@
 <?php 
 
 include_once "rnadb.php";
+include_once "rna_services.php";
 
-if (isset($_GET['add_nat'])) {
-	
-}
-if (isset($_GET['add_pred'])) {
-
-}
-if (isset($_GET['add_pair'])) {
-
+if (isset($_GET['populate'])) {
+	addDirectory("../db/");
 }
 if (isset($_GET['search'])) {
 	// TODO
 }
-if (isset($_GET['downloadAll'])) {
-	// TODO
-	echo json_encode(array("link"=>"http://rnadb.math.gatech.edu/downloads/072720121847_all_0.zip"));
-}
-if (isset($_GET['downloadSelected'])) {
-	// TODO
-	$arr = explode(",", $_GET['selected']);
-	for($i=0;$i<count($arr);$i++)
-		$arr[$i] = $arr[$i];
-	echo json_encode(array("link"=>"http://rnadb.math.gatech.edu/downloads/072720121847_selected_0.zip"));
+if (isset($_GET['download'])) {
+	$arr = explode(",", $_POST['selected']);
+	if (count($arr) == 1 && $arr[0]=="") {
+		echo json_encode(array("error"=>"No files are selected."));
+	} else {
+		$filenames = array();
+		for($i=0;$i<count($arr);$i++) {
+			$filenames[] = get_filename($arr[$i]);
+		}
+		echo json_encode(array("link"=>create_zip($filenames)));
+	}
 }
 
 /*
@@ -57,8 +53,9 @@ if (isset($_GET['getSize'])) {
 	$_POST['preddenmax'] = $_POST['predDensity'][1];
 	$_POST['stuffeddenmin'] = $_POST['stuffedDensity'][0];
 	$_POST['stuffeddenmax'] = $_POST['stuffedDensity'][1];
-	$arr = getSequences_db($_POST);
-	echo json_encode(array("setId"=>$_POST['sizeId'], "setSize"=>count($arr)));
+	$_POST['size'] = 100000;
+	$size = getSize_db($_POST);
+	echo json_encode(array("setId"=>$_POST['sizeId'], "setSize"=>$size));
 }
 
 
