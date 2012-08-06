@@ -1,0 +1,55 @@
+.botLink {
+	border-radius: 0px 0px 8px  8px;
+}
+.confirmBox {
+	padding: 15px;
+	width: 600px;
+	align:center;
+}
+.divLink { 
+	text-align:center;
+	font-weight: bold;
+	background: #e0ffc7;
+	border: 1px solid #000;
+	width: 100%;
+	padding: 15px;
+	color: #000;
+}
+.divLink:Hover {
+	background: #a4d47d;
+}
+.downloadButton {
+ 	font-size: small;
+}
+.formItem {
+	margin-left: 50px;
+}
+.formHeader {
+ 	font-weight: bold;
+ 	padding-top: 25px;
+}
+.leftMain {
+	float:left;
+	width:800px;
+	padding:10px;
+	padding-left:25px;
+}
+.navDiv {
+	float:left;
+	width:180px;
+	padding:15px;
+}
+.rnaTable {
+ 	font-size: small;
+}
+.sizeBox {
+	position : fixed;
+	top      : 100px;
+	right    : 30px;
+	border	 : 1px solid black;
+	padding	 : 10px;
+}
+.topLink {
+	margin-top: 50px;
+	border-radius: 8px 8px 0px 0px;
+}

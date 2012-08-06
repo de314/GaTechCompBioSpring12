@@ -1,6 +1,5 @@
 <?php
 session_start();
-// TODO: Check that user is logged in through CAS else redirect
 
 ?>
 
@@ -8,134 +7,10 @@ session_start();
 <head>
 	<title>Georgia Institute of Technology RNA Database</title>
 	<link type="text/css" href="css/smoothness/jquery-ui-1.8.20.custom.css" rel="stylesheet" />
+	<link type="text/css" href="css/main.css" rel="stylesheet" />
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
-	<script type="text/javascript">
-		var currSizeId = 0;
-		function populateFormElement(jsonFormData) {
-			jsonFormData.family = ($("#familytRNA").is(':checked') ? "tRna,":"")+
-				($("#family5S").is(':checked') ? "5S,":"")+
-				($("#family16S").is(':checked') ? "16S,":"")+
-				($("#family23S").is(':checked') ? "23S,":"");
-			if (jsonFormData.family.length > 0)
-				jsonFormData.family = jsonFormData.family.substring(0,jsonFormData.family.length-1);
-			jsonFormData.ambiguous = $("#ambiguous").is(':checked');
-			jsonFormData.aligned = $("#aligned").is(':checked');
-			jsonFormData.seqLength = $("#sliderSeqLen").slider( "option", "values" );
-			jsonFormData.mfeAccuracy = $.extend(true, [], $("#sliderPredAcc").slider( "option", "values" ));
-			jsonFormData.mfeAccuracy[0] = jsonFormData.mfeAccuracy[0]/1000;
-			jsonFormData.mfeAccuracy[1] = jsonFormData.mfeAccuracy[1]/1000;
-			jsonFormData.name = $("#fileName").val();
-			jsonFormData.natDensity = $.extend(true, [], $("#sliderNatBpDen").slider( "option", "values" ));
-			jsonFormData.natDensity[0] = jsonFormData.natDensity[0]/1000;
-			jsonFormData.natDensity[1] = jsonFormData.natDensity[1]/1000;
-			jsonFormData.predDensity = $.extend(true, [], $("#sliderPredBpDen").slider( "option", "values" ));
-			jsonFormData.predDensity[0] = jsonFormData.predDensity[0]/1000;
-			jsonFormData.predDensity[1] = jsonFormData.predDensity[1]/1000;
-			jsonFormData.stuffedDensity = $.extend(true, [], $("#sliderStuffedBpDen").slider( "option", "values" ));
-			jsonFormData.stuffedDensity[0] = jsonFormData.stuffedDensity[0]/1000;
-			jsonFormData.stuffedDensity[1] = jsonFormData.stuffedDensity[1]/1000;
-		}
-		function updateConfirmText(jsonFormData) { 
-			$("#confirmFamily").html(jsonFormData.family);
-			$("#confirmAmbiguous").html(jsonFormData.ambiguous ? "Allowed" : "Not Allowed");
-			$("#confirmAligned").html(jsonFormData.aligned ? "Required" : "Not Required");
-			$("#confirmLenMin").html(jsonFormData.seqLength[0]);
-			$("#confirmLenMax").html(jsonFormData.seqLength[1]);
-			$("#confirmMfeAccMin").html(jsonFormData.mfeAccuracy[0]);
-			$("#confirmMfeAccMax").html(jsonFormData.mfeAccuracy[1]);
-			$("#confirmName").html(jsonFormData.name);
-			$("#confirmNatDenMin").html(jsonFormData.natDensity[0]);
-			$("#confirmNatDenMax").html(jsonFormData.natDensity[1]);
-			$("#confirmPredDenMin").html(jsonFormData.predDensity[0]);
-			$("#confirmPredDenMax").html(jsonFormData.predDensity[1]);
-			$("#confirmStuffedDenMin").html(jsonFormData.stuffedDensity[0]);
-			$("#confirmStuffedDenMax").html(jsonFormData.stuffedDensity[1]);
-		}
-		function getSetSizeOut() {
-			currSizeId++;
-			var jsonFormData = {};
-			jsonFormData.sizeId = currSizeId;
-			populateFormElement(jsonFormData);
-			updateConfirmText(jsonFormData);
-			$.ajax({
-				type: 'POST',
-				url: "scripts/rnadb_api.php?getSize",
-				data: jsonFormData,
-				success: getSetSizeIn
-			});
-			console.debug("sent");
-		}
-		function getSetSizeIn(data) {
-			console.debug(data);
-			var obj = JSON.parse(data);
-			if (obj.setId == currSizeId) {
-				$("#sizeBox").html("&nbsp;");
-				$("<span>Set Size: "+obj.setSize+"</span>").hide().appendTo("#sizeBox").fadeIn(2000);
-			}
-		}
-		function submitSearch() {
-			var jsonFormData = {};
-			populateFormElement(jsonFormData);
-			$('<form id="searchForm" method="POST" action="results.php"></form>').appendTo('body');
-			//$('<form id="searchForm" method="POST" action="scripts/rnadb_api.php?getSize"></form>').appendTo('body');
-			$('<input>').attr({ type: 'hidden', name: 'family', value: jsonFormData.family }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'ambiguous', value: jsonFormData.ambiguous }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'aligned', value: jsonFormData.aligned }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'lenmin', value: jsonFormData.seqLength[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'lenmax', value: jsonFormData.seqLength[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'name', value: jsonFormData.name }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'preddenmax', value: jsonFormData.predDensity[1] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmin', value: jsonFormData.stuffedDensity[0] }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'stuffeddenmax', value: jsonFormData.stuffedDensity[1] }).appendTo('#searchForm');
-			return $("#searchForm").submit();
-		}
-	</script>
-	<style type="text/css">
-		.divLink { 
-			text-align:center;
-			font-weight: bold;
-			background: #e0ffc7;
-			border: 1px solid #000;
-			width: 100%;
-			padding: 15px;
-			color: #000;
-		}
-		.sizeBox {
-			position : fixed;
-			top      : 100px;
-			right    : 30px;
-			border	 : 1px solid black;
-			padding	 : 10px;
-		}
-		.topLink {
-			margin-top: 50px;
-			border-radius: 8px 8px 0px 0px;
-		}
-		.botLink {
-			border-radius: 0px 0px 8px  8px;
-		}
-		.divLink:Hover {
-			background: #a4d47d;
-		}
-		.formItem {
-			margin-left: 50px;
-		}
-		.formHeader {
-		 	font-weight: bold;
-		 	padding-top: 25px;
-		}
-		.confirmBox {
-			padding: 15px;
-			width: 600px;
-			align:center;
-		}
-	</style>
+	<script type="text/javascript" src="js/rnaDB.min.js"></script>
 </head>
 <body>
 	<div id="container">
@@ -234,49 +109,6 @@ session_start();
 		</div>
 	</div>
 	<script type="text/javascript">
-		function setSlider(ele, max) {
-			ele = $(ele);
-			if ((/[0-9]+/).test(ele.val())) {
-				//console.debug($("#"+ele.attr('sliderId')).slider());
-				console.debug($("#"+ele.attr('sliderId')).slider);
-				$("#"+ele.attr('sliderId')).slider('value', ele.val());
-				ele.old = ele.value;
-			} else {
-				// TODO: reset to old/valid value
-			}
-		}
-		function sliderRange(ele, id, min, max, divider) {
-			ele.html('<label for="min'+id+'">Min: </label><input type="text" id="min'+id+'" sliderId="slider'+id+'" '+
-				'name="min'+id+'" style="width:70px;" value="'+(min / divider)+'"" onblur="getSetSizeOut();" />'+
-				'<span id="slider'+id+'" style="width:50%;display:inline-block;margin-left:20px;margin-right:20px;"></span>'+
-				'<label for="max'+id+'">Max: </label><input type="text" id="max'+id+'" sliderId="slider'+id+'" '+
-				'name="max'+id+'" style="width:70px;" value="'+(max / divider)+'"" onblur="getSetSizeOut();" />');
-			var slider = $("#slider"+id).slider({
-				range: true,
-				min: min,
-				max: max,
-				values: [ min, max ],
-				slide: function( event, ui ) {
-					if (event && ui) {
-						//console.debug(ui);
-						$("#min"+id).val(ui.values[ 0 ] / divider);
-						$("#max"+id).val(ui.values[ 1 ] / divider);
-					}
-				}
-			});
-			$("#slider"+id).live('blur', getSetSizeOut);
-			// TODO: text boxes to set slider
-			$('#min'+id).change(function() {
-				var values = slider.slider( "option", "values" );
-				values[0] = $("#min"+id).val() * divider;
-				slider.slider( "option", "values", values );
-			});
-			$('#max'+id).change(function() {
-				var values = slider.slider( "option", "values" );
-				values[1] = $("#max"+id).val() * divider;
-				slider.slider( "option", "values", values  );
-			});
-		}
 		$(document).ready(function() {
 			$('#tabs').tabs();
 			sliderRange($('#rangeSeqLen'),'SeqLen',0,3000, 1);
@@ -293,7 +125,6 @@ session_start();
 			$('#tabs-1').append('<div id="bottomClearDiv" style="clear:both;" class="clear"></div>');
 			getSetSizeOut();
 		});
-		// TODO: validate sequence length and set slider
 	</script>
 </body>
 </html>
