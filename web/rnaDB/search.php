@@ -68,7 +68,7 @@ session_start();
 		}
 		function getSetSizeIn(data) {
 			console.debug(data);
-			var obj = eval('(' + data + ')');
+			var obj = JSON.parse(data);
 			if (obj.setId == currSizeId) {
 				$("#sizeBox").html("&nbsp;");
 				$("<span>Set Size: "+obj.setSize+"</span>").hide().appendTo("#sizeBox").fadeIn(2000);
@@ -87,7 +87,6 @@ session_start();
 			$('<input>').attr({ type: 'hidden', name: 'mfeaccmin', value: jsonFormData.mfeAccuracy[0] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'mfeaccmax', value: jsonFormData.mfeAccuracy[1] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'name', value: jsonFormData.name }).appendTo('#searchForm');
-			$('<input>').attr({ type: 'hidden', name: 'accession', value: jsonFormData.accession }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'natdenmin', value: jsonFormData.natDensity[0] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'natdenmax', value: jsonFormData.natDensity[1] }).appendTo('#searchForm');
 			$('<input>').attr({ type: 'hidden', name: 'preddenmin', value: jsonFormData.predDensity[0] }).appendTo('#searchForm');

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 include_once "rnadb.php";
 include_once "rna_services.php";
@@ -7,7 +7,10 @@ if (isset($_GET['populate'])) {
 	addDirectory("../db/");
 }
 if (isset($_GET['search'])) {
-	// TODO
+	$arr = array();
+	$arr["rows"] = getSequences($_POST);
+	$arr["offset"] = $_POST["offset"];
+	echo json_encode($arr);
 }
 if (isset($_GET['download'])) {
 	$arr = explode(",", $_POST['selected']);
@@ -17,6 +20,19 @@ if (isset($_GET['download'])) {
 		$filenames = array();
 		for($i=0;$i<count($arr);$i++) {
 			$filenames[] = get_filename($arr[$i]);
+		}
+		echo json_encode(array("link"=>create_zip($filenames)));
+	}
+}
+if (isset($_GET['downloadAll'])) {
+	$arr = getSequences_db($_POST);
+	if (count($arr) == 1 && $arr[0]=="") {
+		echo json_encode(array("error"=>"No files to download."));
+	} else {
+		$filenames = array();
+		for($i=0;$i<count($arr);$i++) {
+			$row = $arr[$i];
+			$filenames[] = $row["name"];
 		}
 		echo json_encode(array("link"=>create_zip($filenames)));
 	}
@@ -33,7 +49,6 @@ Array
 		[mfeaccmin] => 0
 		[mfeaccmax] => 1000
 		[name] =>
-		[accession] =>
 		[natdenmin] => 0
 		[natdenmax] => 1000
 		[preddenmin] => 0
@@ -67,7 +82,7 @@ function getSequences($params) {
 
 // private
 function getSequence($id) {
-	return array( "rid"=>$id ,"name" => "ecoli", "accession" => "ABC-1234",
+	return array( "rid"=>$id ,"name" => "ecoli", 
 			"family" => "5S", "seqLength" => "135",
 			"mfeAcc" => "91%", "natDensity" => "73%",
 			"predDensity" => "77%", "stuffedDensity" => "91%",

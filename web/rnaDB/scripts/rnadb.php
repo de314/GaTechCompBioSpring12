@@ -26,7 +26,7 @@ function insertStructure($rna)
 // private
 function insertPrediction($pred) 
 {
-	$sql = 'INSERT INTO `pred` (`predid`, `rid`, `technique`, `filename`, `acc`, `pden`, `sden`) VALUES 
+	$sql = 'INSERT INTO `pred` (`predid`, `rid`, `technique`, `predname`, `acc`, `pden`, `sden`) VALUES 
 	(NULL, \''.$pred['rid'].'\', \''.$pred['technique'].'\', \''.$pred['predname'].'\', \''.$pred['acc'].'\', \''.$pred['pden'].'\', \''.$pred['sden'].'\');';
 	$result = desql($sql);
 	return $result;
@@ -84,8 +84,15 @@ function get_filename($id) {
 			[stuffeddenmax] => 1000
 	)
 */
-function getDbResults_db($params) 
+function getDbResults_db($params, $size=-1) 
 {
+	if ($size == -1) {
+		if (isset($params["size"]))
+			$size = $params["size"];
+		else
+			$size = 100;
+	}
+	
 	$sql = 'SELECT * FROM `rna` LEFT JOIN `pred` ON `rna`.`rid`=`pred`.`rid` WHERE ';
 	
 	/*
@@ -194,12 +201,10 @@ function getDbResults_db($params)
 	$sql .= '(`pred`.`pden` BETWEEN '.$params['preddenmin'].' AND '.$params['preddenmax'].') AND ';
 	$sql .= '(`pred`.`sden` BETWEEN '.$params['stuffeddenmin'].' AND '.$params['stuffeddenmax'].')';
 	
-	$size = 100;
 	$offset = 0;
-	if (isset($params["size"]))
-		$size = $params["size"];
 	if (isset($params["offset"]))
-		$size = $params["offset"];
+		$offset = $params["offset"];
+	
 	$sql .= " LIMIT $offset, $size;";
 	
 // 	echo $sql;
@@ -208,9 +213,9 @@ function getDbResults_db($params)
 	return $db_result;
 }
 
-function getSize_db($params) {
+function getSize_db($params, $size=-1) {
 	$con = connectToDB();
-	$results = getDbResults_db($params);
+	$results = getDbResults_db($params, $size);
 	$size = mysql_num_rows($results);
 	breakCon($con);
 	return $size;
@@ -251,6 +256,7 @@ function parseJoinedRow($row) {
 	$rna["alignment"] = $row['alignment'];
 	$rna["seqLength"] = $row['seqlen'];
 	$rna['name'] = $row['filename'];
+	$rna['predname'] = $row['predname'];
 	$rna["natDensity"] = $row['den'];
 	$rna["mfeAcc"] = $row['acc'];
 	$rna["predDensity"] = $row['pden'];

@@ -37,7 +37,7 @@ function getRnaHtml($rna) {
 		<td>'.$rna["predDensity"].'</td>
 		<td>'.$rna["stuffedDensity"].'</td>
 		<td>'.($rna["ambiguous"]?"Yes":"No").'</td>
-		<td><a href="#" onclick="alert(\''.$rna["alignment"].'\');">View</a></td></tr>';
+		<td>'.($rna["alignment"]?"Yes":"No").'</td>';
 }
 
 function populateTable($searchParams) {
@@ -55,45 +55,143 @@ function populateTable($searchParams) {
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
 	<script type="text/javascript">
+		var searchParams = <?php echo json_encode($_POST); ?>;
+		var offset = 0;
+		var setSize = 100;
+		var max = <?php echo getSize_db($_POST, 100000); ?>;
+		var allDownloaded = 0;
+		var appendTime = 0;
 		function changeAllCheckboxes() {
 			 $("INPUT[type='checkbox']").attr('checked', $('#cbAll').is(':checked'));
 		}
-		function downloadOut(all) {
-			var selected = "";
-			$("INPUT[type='checkbox']").each(function() {
-				var ele = $(this);
-				if ((all | ele.attr('checked')=='checked') && ele.attr('rnaId')) {
-					selected += ele.attr('rnaId') + ",";
-				}
-			});
-			console.debug(selected);
-			if (selected.length > 0)
-				selected = selected.substring(0, selected.length-1);
-			var jsonData = {};
-			jsonData.selected = selected;
-			$.ajax({
-				type: 'POST',
-				url: "scripts/rnadb_api.php?download",
-				data: jsonData,
-				success:downloadIn
-			});
-			$("#downloadLinks").html("<img src='images/loading_small.gif' />");
+		function downloadOut(set) {
+			if (set=='all' && allDownloaded) {
+				alert("All sequences have already been downloaded:\n" + allDownloaded);
+				return;
+			}
+			if (set == 'all') {
+				allDownloaded = 1;
+				$.ajax({
+					type: 'POST',
+					url: "scripts/rnadb_api.php?downloadAll",
+					data: searchParams,
+					success:downloadIn
+				});
+			} else {
+				var selected = "";
+				$("INPUT[type='checkbox']").each(function() {
+					var ele = $(this);
+					if ((set=='curr' | ele.attr('checked')=='checked') && ele.attr('rnaId')) {
+						selected += ele.attr('rnaId') + ",";
+					}
+				});
+				if (selected.length > 0)
+					selected = selected.substring(0, selected.length-1);
+				var jsonData = {};
+				jsonData.selected = selected;
+				$.ajax({
+					type: 'POST',
+					url: "scripts/rnadb_api.php?download",
+					data: jsonData,
+					success:downloadIn
+				});
+			}
+			$("#downloadLinksLoading").html("<img src='images/loading_small.gif' />");
 		}
 		function downloadIn(data) {
 			console.debug(data);
-			$("#downloadLinks").html("");
-			var obj = eval('(' + data + ')');
+			$("#downloadLinksLoading").html("");
+			if (!appendTime) {
+				$("#downloadLinks").html("");
+				appendTime = 1;
+			}
+			var obj = JSON.parse(data);
 			if (obj.link) {
-				$("<span'>Download Zipped File: <a href='" + obj.link + "'>" + obj.link + "</a></span>")
+				if (allDownloaded == 1)
+					allDownloaded = obj.link;
+				$("<p>Download Zipped File: <a href='" + obj.link + "'>" + obj.link + "</a></p>")
 					.hide()
 					.appendTo("#downloadLinks")
 					.fadeIn(2000);
 			} else {
-				$("<span style='color:red;'>Download Error: " + obj.error + "</span>")
+				$("<p style='color:red;'>Download Error: " + obj.error + "</p>")
 					.hide()
 					.appendTo("#downloadLinks")
 					.fadeIn(2000);
 			}
+		}
+		function searchOut(newOffset) {
+			searchParams.offset = newOffset;
+			$.ajax({
+				type: 'POST',
+				url: "scripts/rnadb_api.php?search",
+				data: searchParams,
+				success:searchIn
+			});
+			$("#setSelectionLinks").html("<img src='images/loading_small.gif' />");
+		}
+		function searchIn(data) {
+			var obj = JSON.parse(data);
+			if (obj) {
+				offset = obj.offset;
+				initTable();
+				var ele = $("#rnaTable");
+				for (var i in obj.rows) {
+					var arr = obj.rows[i];
+					ele.append('<tr><td><input type="checkbox" rnaId='+arr.rid+
+							' /></td><td>'+arr.name+'</td>'+
+							'<td>'+arr.family+'</td>'+
+							'<td>'+arr.seqLength+'</td>'+
+							'<td>'+arr.mfeAcc+'</td>'+
+							'<td>'+arr.natDensity+'</td>'+
+							'<td>'+arr.predDensity+'</td>'+
+							'<td>'+arr.stuffedDensity+'</td>'+
+							'<td>'+(arr.ambiguous?"Yes":"No")+'</td>'+
+							'<td>'+(arr.alignment?"Yes":"No")+'</td></tr>');
+				} 
+			}
+			populateSetSelectionLinks();
+		}
+		function populateSetSelectionLinks() {
+			populateSetSelectionLinks2($("#setSelectionLinks1"));
+			populateSetSelectionLinks2($("#setSelectionLinks2"));
+		}
+		function populateSetSelectionLinks2(ele) {
+			ele.html("");
+			var i = offset > 0 ? offset - setSize : offset;
+			if (i != 0) {
+				var str = "<span>...&nbsp;&nbsp;::&nbsp;&nbsp;</span>";
+				ele.append($(str));
+			}
+			var count = 0;
+			for(;(i+setSize)<max && count < 6;i+=setSize, count++) {
+				var str = "<span>";
+				if (i != offset)
+					str = "<a href='#' onclick='searchOut("+i+");return false;'>";
+				str += i+"-"+(i+setSize-1);
+				if (i != offset)
+					str += "</a>";
+				str += "&nbsp;&nbsp;::&nbsp;&nbsp;</span>";
+				ele.append($(str));
+			}
+			if (count == 6) {
+				var str = "<span>...&nbsp;&nbsp;::&nbsp;&nbsp;</span>";
+				ele.append($(str));
+			}
+			i = Math.floor(max / setSize) * setSize;
+			var str = "<span>";
+			if (i != offset)
+				str = "<a href='#' onclick='searchOut("+i+");return false;'>";
+			str += i+"-"+max;
+			if (i != offset)
+				str += "</a>";
+			str += "</span>";
+			ele.append($(str));
+		}
+		function initTable() {
+			$("#rnaTable").html('<tr><th><input id="cbAll" type="checkbox" onclick="changeAllCheckboxes();" /></th><th>Name</th>'+
+			'<th>Family</th><th>Seq. Length</th><th>MFE Acc.</th><th>Native Density</th>'+
+			'<th>Predicted Density</th><th>Stuffed Density</th><th>Ambiguous</th><th>Aligned</th></tr>');
 		}
 	</script>
 	<style type="text/css">
@@ -134,6 +232,12 @@ function populateTable($searchParams) {
 		 	font-weight: bold;
 		 	padding-top: 25px;
 		}
+		.rnaTable {
+		 	font-size: small;
+		}
+		.downloadButton {
+		 	font-size: small;
+		}
 	</style>
 </head>
 <body>
@@ -153,14 +257,19 @@ function populateTable($searchParams) {
 				</div>
 				<!-- Content-->
 				<div id="downloadButtons" class="leftMain">
-					<button onclick="downloadOut(true);">Download All Sequences</button>
-					<button onclick="downloadOut(false);">Download Selected Sequences</button>
+					<button onclick="downloadOut('all');" class="downloadButton">Download All Sequences</button>
+					<button onclick="downloadOut('curr');" class="downloadButton">Download Sequences On Current Page</button>
+					<button onclick="downloadOut('selected');" class="downloadButton">Download Selected Sequences</button>
 				</div>
 				<div id="downloadLinks" class="leftMain">
 					<i>Download links will appear here.</i>
 				</div>
+				<div id="downloadLinksLoading" class="leftMain">
+					&nbsp;
+				</div>
 				<div id="sequenceGrid" class="leftMain">
-					<table border="1px"; id="rnaTable">
+					<div id="setSelectionLinks1"></div>
+					<table border="1px"; class="rnaTable" id="rnaTable">
 						<tr>
 							<th><input id="cbAll" type="checkbox" onclick="changeAllCheckboxes();" /></th>
 							<th>Name</th>
@@ -173,9 +282,13 @@ function populateTable($searchParams) {
 							<th>Ambiguous</th>
 							<th>Aligned</th>
 						</tr>
+						<span id="resultsBody">
 						<?php populateTable($_POST); ?>
+						</span>
 					</table>
+					<div id="setSelectionLinks2"></div>
 				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -185,6 +298,7 @@ function populateTable($searchParams) {
 		});
 		$(window).load(function() {
 			$('#tabs-1').append('<div id="bottomClearDiv" style="clear:both;" class="clear"></div>');
+			populateSetSelectionLinks();
 		});
 	</script>
 </body>

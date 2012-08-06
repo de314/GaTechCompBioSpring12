@@ -26,7 +26,7 @@ function create_zip($filenames = array()) {
 		//create the archive
 		$zip = new ZipArchive();
 		if($zip->open("../".$destination,ZIPARCHIVE::CREATE) !== true) {
-			return "Server failure, please try again.";
+			return "Server Error: could not open zip file.";
 		}
 		
 // 		echo "created: ../".$destination,"\n";
@@ -45,11 +45,11 @@ function create_zip($filenames = array()) {
 		//check to make sure the file exists
 		if (file_exists("../".$destination))
 			return $destination;
-		return "Failed to write zip file, please try again.";
+		return "Server Error: failed to write zip file.";
 	}
 	else
 	{
-		return "Server failure, please try again.";
+		return "Server Error: files do not exist.";
 	}
 }
 
