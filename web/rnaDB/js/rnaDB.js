@@ -107,13 +107,12 @@ function getSetSizeOut() {
 		data: jsonFormData,
 		success: getSetSizeIn
 	});
-	console.debug("sent");
 }
 function getSetSizeIn(data) {
 	console.debug(data);
 	var obj = JSON.parse(data);
 	if (obj.setId == currSizeId) {
-		$("#sizeBox").html("&nbsp;");
+		$("#sizeBox").html("");
 		$("<span>Set Size: "+obj.setSize+"</span>").hide().appendTo("#sizeBox").fadeIn(2000);
 	}
 }

@@ -10,7 +10,7 @@ session_start();
 	<link type="text/css" href="css/main.css" rel="stylesheet" />
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
-	<script type="text/javascript" src="js/rnaDB.min.js"></script>
+	<script type="text/javascript" src="js/rnaDB.js"></script>
 </head>
 <body>
 	<div id="container">
@@ -28,17 +28,33 @@ session_start();
 					<a href="help.php?moreInfo"><div class="divLink botLink">More Information</div></a>
 				</div>
 				<!-- Size Box -->
-				<div id="sizeBox" class="sizeBox">Set Size: 0</div>
+				<div class="sizeBox">
+					<!-- Size Box -->
+					<div id="sizeBox" style="text-align:center;">Set Size: 0</div>
+					&nbsp;<br />
+					<!-- Confirm Box -->
+					<div id="confirmBox">
+						<b>Family:</b>&nbsp;&nbsp;{<span id="confirmFamily">tRna,5S,16S,23S</span>}<br />
+						<b>Ambiguous:</b>&nbsp;&nbsp;<span id="confirmAmbiguous">Allowed</span><br />
+						<b>Aligned:</b>&nbsp;&nbsp;<span id="confirmAligned">Required</span><br />
+						<b>Sequence Length:</b>&nbsp;&nbsp;<span id="confirmLenMin">0</span>-<span id="confirmLenMax">3000</span><br />
+						<b>MFE Accuracy:</b>&nbsp;&nbsp;<span id="confirmMfeAccMin">0</span>-<span id="confirmMfeAccMax">1</span><br />
+						<b>File Name:</b>&nbsp;&nbsp;"<span id="confirmName"></span>"<br />
+						<b>Natural Density:</b>&nbsp;&nbsp;<span id="confirmNatDenMin">0</span>-<span id="confirmNatDenMax">1</span><br />
+						<b>Predicted Density:</b>&nbsp;&nbsp;<span id="confirmPredDenMin">0</span>-<span id="confirmPredDenMax">1</span><br />
+						<b>Stuffed Density:</b>&nbsp;&nbsp;<span id="confirmStuffedDenMin">0</span>-<span id="confirmStuffedDenMax">1</span><br />
+					</div>
+				</div>
 				<!-- Content-->
 				<div id="nav" style="float:left;padding:30px;width:750px;">
 						
 						<!-- RNA Family -->
 						<p class="formHeader">Select RNA Group(s):</p>
 						<p id="rnaFamily" class="formItem">
-							<input type="checkbox" id="familytRNA" name="familytRNA" checked="1" onchange="getSetSizeOut();" /><label for="familytRNA">tRNA</label>
-							<input type="checkbox" id="family5S" name="family5S" checked="1" onchange="getSetSizeOut();" /><label for="family5S">5S rRNA</label>
+							<input type="checkbox" id="familytRNA" name="familytRNA" onchange="getSetSizeOut();" /><label for="familytRNA">tRNA</label>
+							<input type="checkbox" id="family5S" name="family5S" onchange="getSetSizeOut();" /><label for="family5S">5S rRNA</label>
 							<input type="checkbox" id="family16S" name="family16S" checked="1" onchange="getSetSizeOut();" /><label for="family16S">16S rRNA</label>
-							<input type="checkbox" id="family23S" name="family23S" checked="1" onchange="getSetSizeOut();" /><label for="family23S">23S rRNA</label>
+							<input type="checkbox" id="family23S" name="family23S" onchange="getSetSizeOut();" /><label for="family23S">23S rRNA</label>
 						</p>
 						
 						<!-- Ambiguous -->
@@ -84,22 +100,6 @@ session_start();
 						<!-- Stuffed Pair Density -->
 						<p class="formHeader">Stuffed Pair Density:</p>
 						<p id="rangeStuffedBpDen" class="formItem"></p> 
-				</div>
-				<!-- Confirm Box -->
-				<div class="confirmBox" id="confirmBox">
-					&nbsp;<br/>
-					&nbsp;<br/>
-					Confirm the following search criteria then submit the search below.<br />
-					&nbsp;<br/>
-					<b>Family:</b>&nbsp;&nbsp;{<span id="confirmFamily">tRna,5S,16S,23S</span>}<br />
-					<b>Ambiguous:</b>&nbsp;&nbsp;<span id="confirmAmbiguous">Allowed</span><br />
-					<b>Aligned:</b>&nbsp;&nbsp;<span id="confirmAligned">Required</span><br />
-					<b>Sequence Length:</b>&nbsp;&nbsp;<span id="confirmLenMin">0</span>-<span id="confirmLenMax">3000</span><br />
-					<b>MFE Accuracy:</b>&nbsp;&nbsp;<span id="confirmMfeAccMin">0</span>-<span id="confirmMfeAccMax">1</span><br />
-					<b>File Name:</b>&nbsp;&nbsp;"<span id="confirmName"></span>"<br />
-					<b>Natural Density:</b>&nbsp;&nbsp;<span id="confirmNatDenMin">0</span>-<span id="confirmNatDenMax">1</span><br />
-					<b>Predicted Density:</b>&nbsp;&nbsp;<span id="confirmPredDenMin">0</span>-<span id="confirmPredDenMax">1</span><br />
-					<b>Stuffed Density:</b>&nbsp;&nbsp;<span id="confirmStuffedDenMin">0</span>-<span id="confirmStuffedDenMax">1</span><br />
 				</div>
 				<!-- Submit Box -->
 				<div class="submitBox" id="submitBox">
